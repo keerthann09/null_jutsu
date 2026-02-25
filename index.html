@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#f5f0e8">
+<title>Reading Experience Setup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  @font-face {
+    font-family: 'OpenDyslexic';
+    src: url('https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/fonts/OpenDyslexic-Regular.otf') format('opentype');
+    font-weight: normal;
+  }
+  @font-face {
+    font-family: 'OpenDyslexic';
+    src: url('https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/fonts/OpenDyslexic-Bold.otf') format('opentype');
+    font-weight: bold;
+  }
+
+  :root {
+    --bg: #f5f0e8;
+    --surface: #fffdf7;
+    --text: #2d2620;
+    --muted: #7a6f64;
+    --accent: #c96a3a;
+    --accent-light: #f0ddd2;
+    --border: #e0d8cc;
+    --success: #4a8c5c;
+    --radius: 16px;
+    --radius-sm: 10px;
+    --shadow: 0 4px 24px rgba(45,38,32,0.08);
+    --shadow-hover: 0 8px 32px rgba(45,38,32,0.14);
+    --font: 'Lexend', sans-serif;
+    --user-font: 'Lexend', sans-serif;
+    --user-size: 18px;
+    --user-line: 1.8;
+    --user-letter: 0.02em;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    transition: background 0.4s ease, color 0.4s ease;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 660px;
+    position: relative;
+  }
+
+  /* SCREENS */
+  .screen {
+    display: none;
+    animation: fadeSlideIn 0.5s ease forwards;
+  }
+  .screen.active { display: block; }
+
+  @keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* PROGRESS BAR */
+  .progress-wrap {
+    margin-bottom: 32px;
+    display: none;
+  }
+  .progress-wrap.visible { display: block; }
+  .progress-label {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 8px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .progress-track {
+    height: 6px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 99px;
+    transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  /* CARD */
+  .card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 40px 36px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+  }
+
+  /* TYPOGRAPHY */
+  .step-tag {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+  h1 {
+    font-size: clamp(26px, 5vw, 36px);
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--text);
+    margin-bottom: 16px;
+  }
+  h2 {
+    font-size: clamp(20px, 4vw, 26px);
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+  p.desc {
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--muted);
+    margin-bottom: 32px;
+  }
+
+  /* BUTTONS */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 28px;
+    border-radius: var(--radius-sm);
+    font-family: var(--font);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+    text-decoration: none;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(201,106,58,0.3);
+  }
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(201,106,58,0.4);
+  }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-outline {
+    background: transparent;
+    color: var(--text);
+    border: 2px solid var(--border);
+  }
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-full { width: 100%; justify-content: center; }
+  .btn-success {
+    background: var(--success);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(74,140,92,0.3);
+  }
+
+  /* FONT CARDS */
+  .font-options { display: flex; flex-direction: column; gap: 16px; margin-bottom: 32px; }
+  .font-card {
+    border: 2px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: var(--surface);
+    position: relative;
+  }
+  .font-card:hover { border-color: var(--accent); box-shadow: var(--shadow); }
+  .font-card.selected { border-color: var(--accent); background: var(--accent-light); }
+  .font-card.selected::after {
+    content: '✓';
+    position: absolute;
+    top: 12px; right: 14px;
+    color: var(--accent);
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .font-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .font-preview { font-size: 17px; line-height: 1.6; color: var(--text); }
+  .font-arial .font-preview { font-family: Arial, sans-serif; }
+  .font-verdana .font-preview { font-family: Verdana, Geneva, sans-serif; }
+  .font-dyslexic .font-preview { font-family: 'OpenDyslexic', sans-serif; }
+
+  /* COLOR OPTIONS */
+  .color-options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 32px; }
+  .color-card {
+    border: 2px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    min-height: 80px;
+  }
+  .color-card:hover { transform: scale(1.02); box-shadow: var(--shadow); }
+  .color-card.selected { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-light); }
+  .color-card.selected::after {
+    content: '✓';
+    position: absolute;
+    top: 8px; right: 10px;
+    color: var(--accent);
+    font-size: 16px;
+    font-weight: 700;
+  }
+  .color-card[data-bg="cream"] { background: #fdf6e3; }
+  .color-card[data-bg="blue"] { background: #e8f0fe; }
+  .color-card[data-bg="gray"] { background: #f0f0f0; }
+  .color-card[data-bg="dark"] { background: #1a1a2e; }
+  .color-name { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  .color-card[data-bg="dark"] .color-name { color: #e0e0e0; }
+  .color-sample { font-size: 12px; line-height: 1.5; }
+  .color-card[data-bg="dark"] .color-sample { color: #b0b0c0; }
+
+  /* SLIDERS */
+  .slider-group { margin-bottom: 28px; }
+  .slider-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .slider-label { font-size: 15px; font-weight: 500; color: var(--text); }
+  .slider-val {
+    font-size: 14px;
+    color: var(--accent);
+    font-weight: 600;
+    min-width: 50px;
+    text-align: right;
+  }
+  input[type=range] {
+    width: 100%;
+    -webkit-appearance: none;
+    height: 6px;
+    border-radius: 99px;
+    background: var(--border);
+    outline: none;
+    cursor: pointer;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 2px 8px rgba(201,106,58,0.4);
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+  input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+  input[type=range]::-moz-range-thumb {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: none;
+    cursor: pointer;
+  }
+
+  /* PREVIEW BOX */
+  .preview-box {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 20px;
+    margin: 20px 0 32px;
+  }
+  .preview-text {
+    font-family: var(--user-font);
+    font-size: var(--user-size);
+    line-height: var(--user-line);
+    letter-spacing: var(--user-letter);
+    color: var(--text);
+    transition: all 0.2s ease;
+  }
+
+  /* READING ASSESSMENT */
+  .reading-passage {
+    font-family: var(--user-font);
+    font-size: var(--user-size);
+    line-height: var(--user-line);
+    letter-spacing: var(--user-letter);
+    color: var(--text);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 24px;
+    margin: 20px 0;
+    user-select: none;
+  }
+
+  .timer-display {
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--accent);
+    text-align: center;
+    padding: 16px;
+    letter-spacing: -0.02em;
+  }
+
+  .wpm-result {
+    text-align: center;
+    padding: 24px;
+    background: var(--accent-light);
+    border-radius: var(--radius-sm);
+    margin: 16px 0;
+  }
+  .wpm-number { font-size: 48px; font-weight: 700; color: var(--accent); }
+  .wpm-label { font-size: 14px; color: var(--muted); font-weight: 500; }
+
+  /* MCQ */
+  .mcq-options { display: flex; flex-direction: column; gap: 10px; margin: 16px 0 24px; }
+  .mcq-option {
+    padding: 14px 18px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 15px;
+    transition: all 0.2s;
+    background: var(--surface);
+    font-family: var(--font);
+    text-align: left;
+  }
+  .mcq-option:hover { border-color: var(--accent); background: var(--accent-light); }
+  .mcq-option.correct { border-color: var(--success); background: #e6f4eb; color: var(--success); }
+  .mcq-option.wrong { border-color: #c0392b; background: #fde8e8; color: #c0392b; }
+
+  /* SUPPORT OPTIONS */
+  .support-options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 32px; }
+  .support-card {
+    border: 2px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 18px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    background: var(--surface);
+    position: relative;
+  }
+  .support-card:hover { border-color: var(--accent); transform: scale(1.02); }
+  .support-card.selected { border-color: var(--accent); background: var(--accent-light); }
+  .support-card.selected::after {
+    content: '✓';
+    position: absolute;
+    top: 8px; right: 10px;
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 14px;
+  }
+  .support-icon { font-size: 28px; margin-bottom: 8px; }
+  .support-name { font-size: 14px; font-weight: 600; color: var(--text); }
+  .support-hint { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+  /* COMPLETION */
+  .completion-icon {
+    width: 80px; height: 80px;
+    background: linear-gradient(135deg, #c96a3a, #e8925a);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px;
+    margin: 0 auto 24px;
+    box-shadow: 0 8px 32px rgba(201,106,58,0.3);
+  }
+  .profile-summary {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 20px;
+    margin: 24px 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .summary-item { }
+  .summary-key { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 600; margin-bottom: 4px; }
+  .summary-val { font-size: 16px; font-weight: 600; color: var(--text); }
+
+  /* DARK MODE OVERRIDES */
+  body.dark-mode {
+    --bg: #1a1a2e;
+    --surface: #252538;
+    --text: #e8e8f0;
+    --muted: #9090b0;
+    --border: #353555;
+    --shadow: 0 4px 24px rgba(0,0,0,0.3);
+    --shadow-hover: 0 8px 32px rgba(0,0,0,0.4);
+    --accent-light: rgba(201,106,58,0.15);
+  }
+
+  /* STATES */
+  .hidden { display: none !important; }
+  .reading-in-progress { animation: pulse 2s infinite; }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+
+  @media (max-width: 480px) {
+    .card { padding: 28px 20px; }
+    .color-options { grid-template-columns: 1fr 1fr; }
+    .support-options { grid-template-columns: 1fr 1fr; }
+    .profile-summary { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- PROGRESS BAR -->
+  <div class="progress-wrap" id="progressWrap">
+    <div class="progress-label" id="progressLabel">Step 1 of 6</div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <!-- SCREEN 0: INTRO -->
+  <div class="screen active" id="screen-intro">
+    <div class="card" style="text-align:center">
+      <div style="font-size:52px;margin-bottom:16px">📖</div>
+      <h1>Set Up Your Reading Experience</h1>
+      <p class="desc">We'll personalise your reading environment in about 3 minutes. Answer a few questions and we'll set up fonts, colours, spacing, and support features that work best for you.</p>
+      <button class="btn btn-primary btn-full" onclick="goToScreen('font')">
+        Let's Begin →
+      </button>
+    </div>
+  </div>
+
+  <!-- SCREEN 1: FONT -->
+  <div class="screen" id="screen-font">
+    <div class="card">
+      <div class="step-tag">Step 1 — Font</div>
+      <h2>Choose Your Reading Font</h2>
+      <p class="desc">Read the same sentence in each font. Pick the one that feels clearest and most comfortable.</p>
+      <div class="font-options">
+        <div class="font-card font-dyslexic" data-font="OpenDyslexic" onclick="selectFont(this)">
+          <div class="font-label">OpenDyslexic — Designed for easier reading</div>
+          <div class="font-preview">The quick brown fox jumps over the lazy dog by the riverbank.</div>
+        </div>
+        <div class="font-card font-arial" data-font="Arial" onclick="selectFont(this)">
+          <div class="font-label">Arial — Clean and familiar</div>
+          <div class="font-preview">The quick brown fox jumps over the lazy dog by the riverbank.</div>
+        </div>
+        <div class="font-card font-verdana" data-font="Verdana" onclick="selectFont(this)">
+          <div class="font-label">Verdana — Wide and well-spaced</div>
+          <div class="font-preview">The quick brown fox jumps over the lazy dog by the riverbank.</div>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-full" id="fontNext" onclick="saveFontAndNext()" disabled>Continue →</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 2: BACKGROUND -->
+  <div class="screen" id="screen-bg">
+    <div class="card">
+      <div class="step-tag">Step 2 — Background</div>
+      <h2>Pick a Background Colour</h2>
+      <p class="desc">Some backgrounds reduce eye strain and make text easier to track. Try each one.</p>
+      <div class="color-options">
+        <div class="color-card" data-bg="cream" onclick="selectBg(this)">
+          <div class="color-name">Cream</div>
+          <div class="color-sample">Warm and soft on the eyes.</div>
+        </div>
+        <div class="color-card" data-bg="blue" onclick="selectBg(this)">
+          <div class="color-name">Soft Blue</div>
+          <div class="color-sample">Cool and calm to read.</div>
+        </div>
+        <div class="color-card" data-bg="gray" onclick="selectBg(this)">
+          <div class="color-name">Light Gray</div>
+          <div class="color-sample">Neutral and balanced.</div>
+        </div>
+        <div class="color-card" data-bg="dark" onclick="selectBg(this)">
+          <div class="color-name" style="color:#e0e0e0">Dark Mode</div>
+          <div class="color-sample" style="color:#9090b0">Easy on the eyes at night.</div>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-full" id="bgNext" onclick="saveBgAndNext()" disabled>Continue →</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 3: TEXT CUSTOMISATION -->
+  <div class="screen" id="screen-text">
+    <div class="card">
+      <div class="step-tag">Step 3 — Text</div>
+      <h2>Adjust Text Appearance</h2>
+      <p class="desc">Move the sliders and watch the preview update. Find what feels right to you.</p>
+
+      <div class="slider-group">
+        <div class="slider-row">
+          <span class="slider-label">Font Size</span>
+          <span class="slider-val" id="sizeVal">18px</span>
+        </div>
+        <input type="range" id="fontSize" min="14" max="28" value="18" oninput="updatePreview()">
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-row">
+          <span class="slider-label">Line Spacing</span>
+          <span class="slider-val" id="lineVal">1.8</span>
+        </div>
+        <input type="range" id="lineSpacing" min="12" max="30" value="18" oninput="updatePreview()">
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-row">
+          <span class="slider-label">Letter Spacing</span>
+          <span class="slider-val" id="letterVal">0.02em</span>
+        </div>
+        <input type="range" id="letterSpacing" min="0" max="10" value="2" oninput="updatePreview()">
+      </div>
+
+      <div class="preview-box">
+        <p class="preview-text" id="previewText">Reading should feel effortless and enjoyable. When text is the right size with comfortable spacing, words flow naturally and your brain can focus on meaning rather than effort.</p>
+      </div>
+
+      <button class="btn btn-primary btn-full" onclick="saveTextAndNext()">Continue →</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 4: READING ASSESSMENT -->
+  <div class="screen" id="screen-reading">
+    <div class="card">
+      <div class="step-tag">Step 4 — Reading Check</div>
+      <h2>Quick Reading Assessment</h2>
+      <p class="desc">Read the passage below. Press Start when ready, then press Finish when you're done. This helps us measure your baseline reading speed.</p>
+
+      <div class="reading-passage" id="readingPassage">
+        Every morning, a young girl named Mia walked to school through a small forest path. Along the way, she noticed things others often missed — a spider web sparkling with dew, the way sunlight broke through the leaves in golden beams, the distant call of a bird she could never quite identify. She kept a small notebook where she sketched what she saw. Her teacher once asked her why she always arrived with muddy boots and wide eyes. Mia smiled and said that the world was full of small wonders if you slowed down long enough to notice them. That year, her nature journal won the school prize.
+      </div>
+
+      <div class="timer-display hidden" id="timerDisplay">0:00</div>
+
+      <div id="assessButtons">
+        <button class="btn btn-primary btn-full" id="startReadBtn" onclick="startReading()">▶ Start Reading</button>
+        <button class="btn btn-success btn-full hidden" id="finishReadBtn" onclick="finishReading()">✓ I've Finished Reading</button>
+      </div>
+
+      <div class="wpm-result hidden" id="wpmResult">
+        <div class="wpm-number" id="wpmNumber">0</div>
+        <div class="wpm-label">Words Per Minute</div>
+      </div>
+
+      <div class="hidden" id="mcqSection">
+        <h2 style="margin-top:24px;margin-bottom:12px">Quick check — what was the passage about?</h2>
+        <div class="mcq-options">
+          <button class="mcq-option" onclick="checkAnswer(this, false)">A girl who won a science competition at school</button>
+          <button class="mcq-option" onclick="checkAnswer(this, true)">A girl who noticed nature on her way to school</button>
+          <button class="mcq-option" onclick="checkAnswer(this, false)">A girl who learned to identify birds by sound</button>
+          <button class="mcq-option" onclick="checkAnswer(this, false)">A teacher who kept a nature journal</button>
+        </div>
+        <button class="btn btn-primary btn-full hidden" id="readingNext" onclick="saveReadingAndNext()">Continue →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 5: SUPPORT -->
+  <div class="screen" id="screen-support">
+    <div class="card">
+      <div class="step-tag">Step 5 — Support</div>
+      <h2>Choose Your Reading Support</h2>
+      <p class="desc">Select all that might help you. You can always change these later.</p>
+      <div class="support-options">
+        <div class="support-card" data-support="read-aloud" onclick="toggleSupport(this)">
+          <div class="support-icon">🔊</div>
+          <div class="support-name">Read Aloud</div>
+          <div class="support-hint">Text spoken as you read</div>
+        </div>
+        <div class="support-card" data-support="word-highlight" onclick="toggleSupport(this)">
+          <div class="support-icon">🖍️</div>
+          <div class="support-name">Word Highlight</div>
+          <div class="support-hint">Each word lights up</div>
+        </div>
+        <div class="support-card" data-support="line-focus" onclick="toggleSupport(this)">
+          <div class="support-icon">🔦</div>
+          <div class="support-name">Line Focus</div>
+          <div class="support-hint">One line at a time</div>
+        </div>
+        <div class="support-card" data-support="none" onclick="toggleSupport(this, true)">
+          <div class="support-icon">✨</div>
+          <div class="support-name">No Support</div>
+          <div class="support-hint">I prefer to read freely</div>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-full" onclick="saveSupportAndNext()">Continue →</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 6: COMPLETION -->
+  <div class="screen" id="screen-done">
+    <div class="card" style="text-align:center">
+      <div class="completion-icon">🎉</div>
+      <h1>Your reading profile is ready.</h1>
+      <p class="desc">We've saved your preferences and measured your baseline. Everything is set up just for you.</p>
+      <div class="profile-summary" id="profileSummary"></div>
+      <button class="btn btn-primary btn-full" onclick="startReading_final()" style="margin-top:8px">
+        Start Reading →
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ─── State ────────────────────────────────────────────────────────────────────
+let userProfile = {
+  preferences: {
+    font: '', background: '',
+    fontSize: '18px', lineSpacing: '1.8', letterSpacing: '0.02em',
+    supportLevel: []
+  },
+  baseline: { wpm: 0, comprehension: 0 },
+  progress: { currentWPM: 0, wordsMastered: 0, streak: 0, lessonsCompleted: 0 }
+};
+
+let currentScreen = 'intro';
+let timerInterval = null;
+let readingStart = null;
+let readingWPM = 0;
+let comprehensionAnswered = false;
+
+const SCREENS = ['intro','font','bg','text','reading','support','done'];
+const PASSAGE_WORDS = 128;
+
+const BG_MAP = {
+  cream:  { bg:'#fdf6e3', surface:'#fffdf5', text:'#2d2620', border:'#e8dcc8', dark: false },
+  blue:   { bg:'#e8f0fe', surface:'#f4f7ff', text:'#1a2a4a', border:'#c8d8f4', dark: false },
+  gray:   { bg:'#f0f0f0', surface:'#fafafa', text:'#222222', border:'#d8d8d8', dark: false },
+  dark:   { bg:'#1a1a2e', surface:'#252538', text:'#e8e8f0', border:'#353555', dark: true  },
+};
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  const saved = localStorage.getItem('userProfile');
+  if (saved) {
+    try { userProfile = Object.assign({}, userProfile, JSON.parse(saved)); } catch(e) {}
+    applyProfile();
+  }
+  updateSliderDisplay();
+});
+
+function applyProfile() {
+  const p = userProfile.preferences;
+  if (p.font) setCSSVar('--user-font', p.font === 'OpenDyslexic' ? "'OpenDyslexic', sans-serif" : p.font + ', sans-serif');
+  if (p.background) applyBg(p.background);
+  if (p.fontSize) setCSSVar('--user-size', p.fontSize);
+  if (p.lineSpacing) setCSSVar('--user-line', p.lineSpacing);
+  if (p.letterSpacing) setCSSVar('--user-letter', p.letterSpacing);
+}
+
+function setCSSVar(key, val) {
+  document.documentElement.style.setProperty(key, val);
+}
+
+function saveProfile() {
+  localStorage.setItem('userProfile', JSON.stringify(userProfile));
+}
+
+// ─── Navigation ───────────────────────────────────────────────────────────────
+function goToScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const target = document.getElementById('screen-' + id);
+  target.classList.add('active');
+  currentScreen = id;
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateProgress() {
+  const wrap = document.getElementById('progressWrap');
+  const fill = document.getElementById('progressFill');
+  const label = document.getElementById('progressLabel');
+  if (currentScreen === 'intro' || currentScreen === 'done') {
+    wrap.classList.remove('visible'); return;
+  }
+  wrap.classList.add('visible');
+  const steps = ['font','bg','text','reading','support'];
+  const idx = steps.indexOf(currentScreen);
+  if (idx === -1) return;
+  const pct = ((idx + 1) / steps.length) * 100;
+  fill.style.width = pct + '%';
+  label.textContent = `Step ${idx + 1} of ${steps.length}`;
+}
+
+// ─── Font ─────────────────────────────────────────────────────────────────────
+function selectFont(el) {
+  document.querySelectorAll('.font-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('fontNext').disabled = false;
+}
+
+function saveFontAndNext() {
+  const sel = document.querySelector('.font-card.selected');
+  if (!sel) return;
+  const font = sel.dataset.font;
+  userProfile.preferences.font = font;
+  const fontStr = font === 'OpenDyslexic' ? "'OpenDyslexic', sans-serif" : font + ', sans-serif';
+  setCSSVar('--user-font', fontStr);
+  saveProfile();
+  goToScreen('bg');
+}
+
+// ─── Background ───────────────────────────────────────────────────────────────
+function selectBg(el) {
+  document.querySelectorAll('.color-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  applyBg(el.dataset.bg);
+  document.getElementById('bgNext').disabled = false;
+}
+
+function applyBg(key) {
+  const cfg = BG_MAP[key];
+  if (!cfg) return;
+  setCSSVar('--bg', cfg.bg);
+  setCSSVar('--surface', cfg.surface);
+  setCSSVar('--text', cfg.text);
+  setCSSVar('--border', cfg.border);
+  if (cfg.dark) {
+    document.body.classList.add('dark-mode');
+    setCSSVar('--muted', '#9090b0');
+  } else {
+    document.body.classList.remove('dark-mode');
+    setCSSVar('--muted', '#7a6f64');
+  }
+}
+
+function saveBgAndNext() {
+  const sel = document.querySelector('.color-card.selected');
+  if (!sel) return;
+  userProfile.preferences.background = sel.dataset.bg;
+  saveProfile();
+  goToScreen('text');
+}
+
+// ─── Text Customisation ───────────────────────────────────────────────────────
+function updatePreview() {
+  const size = document.getElementById('fontSize').value;
+  const line = document.getElementById('lineSpacing').value;
+  const letter = document.getElementById('letterSpacing').value;
+
+  const sizePx = size + 'px';
+  const lineVal = (line / 10).toFixed(1);
+  const letterEm = (letter / 100).toFixed(2) + 'em';
+
+  document.getElementById('sizeVal').textContent = sizePx;
+  document.getElementById('lineVal').textContent = lineVal;
+  document.getElementById('letterVal').textContent = letterEm;
+
+  const preview = document.getElementById('previewText');
+  preview.style.fontSize = sizePx;
+  preview.style.lineHeight = lineVal;
+  preview.style.letterSpacing = letterEm;
+
+  setCSSVar('--user-size', sizePx);
+  setCSSVar('--user-line', lineVal);
+  setCSSVar('--user-letter', letterEm);
+}
+
+function updateSliderDisplay() {
+  updatePreview();
+}
+
+function saveTextAndNext() {
+  const size = document.getElementById('fontSize').value + 'px';
+  const line = (document.getElementById('lineSpacing').value / 10).toFixed(1);
+  const letter = (document.getElementById('letterSpacing').value / 100).toFixed(2) + 'em';
+  userProfile.preferences.fontSize = size;
+  userProfile.preferences.lineSpacing = line;
+  userProfile.preferences.letterSpacing = letter;
+  saveProfile();
+  goToScreen('reading');
+}
+
+// ─── Reading Assessment ───────────────────────────────────────────────────────
+function startReading() {
+  document.getElementById('startReadBtn').classList.add('hidden');
+  document.getElementById('finishReadBtn').classList.remove('hidden');
+  document.getElementById('timerDisplay').classList.remove('hidden');
+  document.getElementById('readingPassage').classList.add('reading-in-progress');
+  readingStart = Date.now();
+  timerInterval = setInterval(() => {
+    const elapsed = Math.floor((Date.now() - readingStart) / 1000);
+    const m = Math.floor(elapsed / 60);
+    const s = elapsed % 60;
+    document.getElementById('timerDisplay').textContent = m + ':' + String(s).padStart(2, '0');
+  }, 200);
+}
+
+function finishReading() {
+  clearInterval(timerInterval);
+  const elapsed = (Date.now() - readingStart) / 1000 / 60;
+  readingWPM = Math.round(PASSAGE_WORDS / elapsed);
+  document.getElementById('finishReadBtn').classList.add('hidden');
+  document.getElementById('readingPassage').classList.remove('reading-in-progress');
+  document.getElementById('wpmResult').classList.remove('hidden');
+  document.getElementById('wpmNumber').textContent = readingWPM;
+  document.getElementById('mcqSection').classList.remove('hidden');
+}
+
+function checkAnswer(el, correct) {
+  if (comprehensionAnswered) return;
+  comprehensionAnswered = true;
+  document.querySelectorAll('.mcq-option').forEach(o => o.style.pointerEvents = 'none');
+  el.classList.add(correct ? 'correct' : 'wrong');
+  if (!correct) {
+    document.querySelectorAll('.mcq-option').forEach(o => {
+      if (o.textContent.includes('noticed nature')) o.classList.add('correct');
+    });
+  }
+  userProfile.baseline.wpm = readingWPM;
+  userProfile.baseline.comprehension = correct ? 100 : 0;
+  userProfile.progress.currentWPM = readingWPM;
+  saveProfile();
+  document.getElementById('readingNext').classList.remove('hidden');
+}
+
+function saveReadingAndNext() {
+  goToScreen('support');
+}
+
+// ─── Support ──────────────────────────────────────────────────────────────────
+function toggleSupport(el, exclusive) {
+  if (exclusive) {
+    document.querySelectorAll('.support-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+  } else {
+    const noneCard = document.querySelector('[data-support="none"]');
+    noneCard.classList.remove('selected');
+    el.classList.toggle('selected');
+  }
+}
+
+function saveSupportAndNext() {
+  const selected = [...document.querySelectorAll('.support-card.selected')].map(c => c.dataset.support);
+  userProfile.preferences.supportLevel = selected;
+  saveProfile();
+  buildSummary();
+  goToScreen('done');
+}
+
+// ─── Completion ───────────────────────────────────────────────────────────────
+function buildSummary() {
+  const p = userProfile.preferences;
+  const b = userProfile.baseline;
+  const items = [
+    { k: 'Font', v: p.font || 'Lexend' },
+    { k: 'Background', v: capitalize(p.background) || 'Cream' },
+    { k: 'Font Size', v: p.fontSize },
+    { k: 'Line Spacing', v: p.lineSpacing },
+    { k: 'Reading Speed', v: b.wpm + ' WPM' },
+    { k: 'Comprehension', v: b.comprehension === 100 ? '✓ Correct' : '✗ Incorrect' },
+  ];
+  const el = document.getElementById('profileSummary');
+  el.innerHTML = items.map(i => `
+    <div class="summary-item">
+      <div class="summary-key">${i.k}</div>
+      <div class="summary-val">${i.v}</div>
+    </div>`).join('');
+}
+
+function startReading_final() {
+  alert('Opening your reading library… (Hook this up to your main app route!)');
+}
+
+function capitalize(s) {
+  if (!s) return '';
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+</script>
+</body>
+</html>
