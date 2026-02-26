@@ -56,8 +56,8 @@ LexiLift uses a dual-backend approach to maximize hackathon efficiency:
 
 1. **Clone the repository:**
 ```bash
-git clone https://github.com/your-username/lexilift-pwa.gi
-cd lexilift-pwa
+git clone https://github.com/keerthann09/null_jutsu
+cd null_jutsu
 
 ```
 
@@ -80,10 +80,6 @@ python -m http.server 8000
 
 ```
 
-
-
----
-
 ## 📈 The Adaptive Logic
 
 The platform uses a performance-based algorithm to scale difficulty.
@@ -96,15 +92,12 @@ The platform uses a performance-based algorithm to scale difficulty.
 ## 🚧 Challenges We Overcame
 
 * **State Syncing:** Managing UI preferences across different sessions using Supabase real-time updates.
-* **PWA Compliance:** Ensuring the manifest and service workers allow for a seamless "Install to Home Screen" experience.
 * **Accessibility Design:** Balancing a modern aesthetic with strict WCAG accessibility guidelines for dyslexic users.
 
-## 🗺️ Roadmap
+## 🗺️ Roadmap /Future Updates
 
 * **AI Simplification:** Integration of LLMs to summarize complex academic text into "Easy-to-Read" versions.
 * **Gamification:** Badges and streaks to encourage daily reading habits.
 * **Teacher Portal:** Allowing educators to upload custom curriculum-aligned PDFs.
 
----
 
-### **Would you like me to add a section specifically explaining how the PWA Service Worker handles offline reading for your demo?**
