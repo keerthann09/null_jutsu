@@ -1,0 +1,337 @@
+/* ============================================================
+   ReadEase — Global CSS
+   Import OpenDyslexic font (dyslexia-friendly)
+   ============================================================ */
+
+/* OpenDyslexic — specifically designed for dyslexia */
+@import url('https://fonts.cdnfonts.com/css/opendyslexic');
+/* Lexend — another dyslexia-friendly font */
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=Lexend+Deca&display=swap');
+/* Atkinson Hyperlegible — maximum legibility */
+@import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap');
+
+/* ============================================================
+   CSS Custom Properties (Design Tokens)
+   These get overridden per-user from their saved preferences
+   ============================================================ */
+:root {
+  /* Colors */
+  --bg:           #fdf6e3;   /* warm cream — reduces glare */
+  --surface:      #ffffff;
+  --surface2:     #f5ede0;
+  --text:         #2d2620;
+  --text-muted:   #7a6f64;
+  --accent:       #c96a3a;   /* warm orange — calm, not alarming */
+  --accent2:      #4a8fa8;   /* teal for secondary actions */
+  --success:      #4caf7d;
+  --border:       #e0d8cc;
+  --highlight:    #ffe066;   /* yellow for focus highlighting */
+  --shadow:       rgba(45, 38, 32, 0.08);
+
+  /* Typography */
+  --font:         'OpenDyslexic', 'Lexend', sans-serif;
+  --font-size:    20px;
+  --line-height:  1.8;
+  --letter-sp:    0.05em;
+  --word-sp:      0.2em;
+
+  /* Reader specific */
+  --reader-width: 680px;
+  --reader-padding: 40px;
+
+  /* Transitions */
+  --transition:   all 0.2s ease;
+  --transition-slow: all 0.4s ease;
+
+  /* Radius */
+  --radius-sm: 8px;
+  --radius:    16px;
+  --radius-lg: 24px;
+}
+
+/* Dark theme */
+[data-theme="dark"] {
+  --bg:      #1a1410;
+  --surface: #241e18;
+  --surface2: #2e2620;
+  --text:    #f0e8dc;
+  --text-muted: #9e9186;
+  --border:  #3a3028;
+  --shadow:  rgba(0,0,0,0.3);
+}
+
+/* High contrast theme */
+[data-theme="high-contrast"] {
+  --bg:      #000000;
+  --surface: #111111;
+  --text:    #ffffff;
+  --accent:  #ffdd00;
+  --border:  #444444;
+}
+
+/* ============================================================
+   Reset & Base
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: var(--font-size); scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: var(--line-height);
+  letter-spacing: var(--letter-sp);
+  word-spacing: var(--word-sp);
+  min-height: 100vh;
+  transition: background 0.3s ease, color 0.3s ease;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ============================================================
+   Typography
+   ============================================================ */
+h1, h2, h3, h4, h5 {
+  font-family: 'Lexend', sans-serif;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--text);
+}
+
+h1 { font-size: clamp(1.8rem, 4vw, 2.8rem); }
+h2 { font-size: clamp(1.4rem, 3vw, 2rem); }
+h3 { font-size: clamp(1.1rem, 2vw, 1.4rem); }
+
+p { margin-bottom: 1em; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ============================================================
+   Layout Utilities
+   ============================================================ */
+.container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+.flex { display: flex; }
+.flex-center { display: flex; align-items: center; justify-content: center; }
+.flex-between { display: flex; align-items: center; justify-content: space-between; }
+.grid { display: grid; }
+.gap-sm { gap: 8px; }
+.gap { gap: 16px; }
+.gap-lg { gap: 24px; }
+.gap-xl { gap: 40px; }
+.mt-sm { margin-top: 8px; }
+.mt { margin-top: 16px; }
+.mt-lg { margin-top: 32px; }
+.hidden { display: none !important; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+
+/* ============================================================
+   Buttons
+   ============================================================ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  font-family: var(--font);
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: var(--transition);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: white;
+  box-shadow: 0 4px 12px rgba(201,106,58,0.3);
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(201,106,58,0.4); }
+
+.btn-secondary {
+  background: transparent;
+  color: var(--text);
+  border: 2px solid var(--border);
+}
+.btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-muted);
+}
+.btn-ghost:hover { background: var(--surface2); color: var(--text); }
+
+.btn-icon {
+  width: 44px; height: 44px;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 1.2rem;
+}
+
+.btn-lg { padding: 16px 36px; font-size: 1.1rem; }
+.btn-sm { padding: 8px 16px; font-size: 0.875rem; }
+
+.btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* ============================================================
+   Cards
+   ============================================================ */
+.card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  padding: 24px;
+  box-shadow: 0 4px 16px var(--shadow);
+  transition: var(--transition);
+}
+
+.card:hover { box-shadow: 0 8px 32px var(--shadow); }
+.card-hover:hover { transform: translateY(-4px); }
+
+/* ============================================================
+   Form Elements
+   ============================================================ */
+input, select, textarea {
+  font-family: var(--font);
+  font-size: 1rem;
+  background: var(--surface);
+  color: var(--text);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  width: 100%;
+  transition: border-color 0.2s;
+  letter-spacing: 0.02em;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(201,106,58,0.15);
+}
+
+input::placeholder { color: var(--text-muted); }
+
+label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* Range slider */
+input[type=range] {
+  -webkit-appearance: none;
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  padding: 0;
+  border: none;
+  cursor: pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 22px; height: 22px;
+  background: var(--accent);
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(201,106,58,0.4);
+}
+input[type=range]:focus { box-shadow: none; }
+
+/* ============================================================
+   Toast Notifications
+   ============================================================ */
+#toast-container {
+  position: fixed;
+  bottom: 24px; right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.toast {
+  padding: 14px 20px;
+  border-radius: var(--radius);
+  background: var(--text);
+  color: var(--bg);
+  font-size: 0.95rem;
+  font-weight: 500;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  animation: slideInRight 0.3s ease, fadeOut 0.3s ease 2.7s forwards;
+  max-width: 320px;
+}
+.toast.success { background: var(--success); }
+.toast.error   { background: #e05252; }
+
+/* ============================================================
+   Loading Spinner
+   ============================================================ */
+.spinner {
+  width: 40px; height: 40px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* ============================================================
+   Progress Bar
+   ============================================================ */
+.progress-bar {
+  height: 8px;
+  background: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+/* ============================================================
+   Badges
+   ============================================================ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.badge-accent { background: rgba(201,106,58,0.15); color: var(--accent); }
+.badge-success { background: rgba(76,175,125,0.15); color: var(--success); }
+.badge-info    { background: rgba(74,143,168,0.15); color: var(--accent2); }
+
+/* ============================================================
+   Scrollbar styling
+   ============================================================ */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+/* ============================================================
+   Accessibility
+   ============================================================ */
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* High-contrast focus for keyboard navigation */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

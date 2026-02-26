@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ReadEase — Adaptive Reading Assistant</title>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Lora:wght@600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #faf8f4;
+    --warm:  #fff9f2;
+    --sage:  #6a9e7f;
+    --sage-d:#3e7057;
+    --sage-l:#c2dace;
+    --amber: #e8a84a;
+    --rose:  #d97b6c;
+    --ink:   #26201c;
+    --mid:   #5a4f48;
+    --soft:  #9a8e86;
+    --card:  rgba(255,255,255,0.82);
+    --r:     18px;
+    --sh:    0 4px 28px rgba(38,32,28,0.09);
+    --hl:    rgba(106,158,127,0.32);
+    --hl-c:  rgba(232,168,74,0.38);
+  }
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  body{
+    font-family:'Atkinson Hyperlegible',sans-serif;
+    background:var(--cream); color:var(--ink);
+    min-height:100vh; overflow-x:hidden;
+  }
+  body::before{
+    content:''; position:fixed; width:560px; height:560px;
+    background:radial-gradient(circle,rgba(194,218,206,0.3) 0%,transparent 68%);
+    top:-130px; right:-130px; border-radius:50%;
+    pointer-events:none; z-index:0;
+  }
+  body::after{
+    content:''; position:fixed; width:460px; height:460px;
+    background:radial-gradient(circle,rgba(232,168,74,0.13) 0%,transparent 68%);
+    bottom:-90px; left:-90px; border-radius:50%;
+    pointer-events:none; z-index:0;
+  }
+  .app{ position:relative; z-index:1; max-width:760px; margin:0 auto; padding:28px 20px 100px; }
+
+  /* HEADER */
+  header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:22px; animation:up 0.55s ease both; flex-wrap:wrap; gap:10px; }
+  .logo{ display:flex; align-items:center; gap:10px; }
+  .logo-icon{ width:40px; height:40px; background:linear-gradient(135deg,var(--sage),var(--sage-d)); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:21px; }
+  .logo-text{ font-family:'Lora',serif; font-size:22px; font-weight:600; }
+  .logo-text span{ color:var(--sage-d); }
+  .header-right{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .day-pill{ background:var(--card); backdrop-filter:blur(8px); border:1px solid rgba(106,158,127,0.28); border-radius:100px; padding:6px 16px; font-size:13px; color:var(--mid); font-weight:700; }
+
+  /* LANGUAGE SELECTOR */
+  .lang-strip{ display:flex; gap:6px; flex-wrap:wrap; margin-bottom:16px; animation:up 0.6s 0.03s ease both; }
+  .lang-btn{ display:flex; align-items:center; gap:6px; padding:8px 18px; border-radius:100px; border:1.5px solid rgba(38,32,28,0.12); background:var(--card); font-family:'Atkinson Hyperlegible',sans-serif; font-size:13px; font-weight:700; color:var(--mid); cursor:pointer; transition:all 0.2s; box-shadow:var(--sh); }
+  .lang-btn:hover{ background:white; border-color:var(--sage-l); }
+  .lang-btn.active{ background:var(--sage-d); color:white; border-color:var(--sage-d); }
+  .lang-flag{ font-size:16px; }
+
+  /* START BOX */
+  .start-box{ background:linear-gradient(135deg,var(--sage-d),var(--sage)); border-radius:22px; padding:24px 28px; display:flex; align-items:center; justify-content:space-between; gap:18px; box-shadow:0 8px 30px rgba(62,112,87,0.32); margin-bottom:20px; animation:up 0.6s 0.05s ease both; }
+  .start-words{ color:white; }
+  .start-words h2{ font-family:'Lora',serif; font-size:21px; font-weight:600; margin-bottom:4px; }
+  .start-words p { font-size:14px; opacity:0.88; line-height:1.5; }
+  #big-start-btn{ background:white; color:var(--sage-d); border:none; border-radius:100px; padding:14px 30px; font-family:'Atkinson Hyperlegible',sans-serif; font-size:17px; font-weight:700; cursor:pointer; white-space:nowrap; box-shadow:0 4px 18px rgba(0,0,0,0.14); transition:all 0.2s; flex-shrink:0; }
+  #big-start-btn:hover{ transform:scale(1.05); }
+  #big-start-btn:disabled{ opacity:0.45; cursor:not-allowed; transform:none; }
+
+  /* SPEED + PAUSE ROW */
+  .controls-row{ display:flex; align-items:center; gap:12px; margin-bottom:16px; animation:up 0.6s 0.08s ease both; background:var(--card); border-radius:var(--r); border:1px solid rgba(255,255,255,0.9); padding:14px 20px; box-shadow:var(--sh); flex-wrap:wrap; }
+  .controls-row label{ font-size:13px; font-weight:700; color:var(--mid); white-space:nowrap; }
+  #speed-slider{ flex:1; min-width:100px; -webkit-appearance:none; height:6px; background:linear-gradient(90deg,var(--sage-l),var(--sage)); border-radius:100px; outline:none; cursor:pointer; }
+  #speed-slider::-webkit-slider-thumb{ -webkit-appearance:none; width:20px; height:20px; border-radius:50%; background:var(--sage-d); box-shadow:0 2px 8px rgba(62,112,87,0.4); cursor:pointer; }
+  .speed-lbl{ font-size:13px; font-weight:700; color:var(--sage-d); min-width:80px; text-align:right; }
+  #pause-btn{ display:none; align-items:center; gap:6px; padding:8px 16px; border-radius:100px; border:1.5px solid rgba(232,168,74,0.5); background:rgba(232,168,74,0.1); font-family:'Atkinson Hyperlegible',sans-serif; font-size:13px; font-weight:700; color:#a06210; cursor:pointer; transition:all 0.2s; white-space:nowrap; }
+  #pause-btn:hover{ background:rgba(232,168,74,0.2); }
+  #pause-btn.show{ display:flex; }
+
+  /* TOOLS */
+  .tools-strip{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; animation:up 0.6s 0.18s ease both; }
+  .tb{ display:flex; align-items:center; gap:6px; padding:8px 16px; border-radius:100px; border:1.5px solid rgba(38,32,28,0.12); background:var(--card); backdrop-filter:blur(8px); font-family:'Atkinson Hyperlegible',sans-serif; font-size:13px; font-weight:700; color:var(--mid); cursor:pointer; transition:all 0.2s; box-shadow:var(--sh); }
+  .tb:hover{ background:white; border-color:var(--sage-l); color:var(--ink); }
+  .tb.on   { background:var(--sage); color:white; border-color:var(--sage); }
+  .tb .ic  { font-size:15px; }
+
+  /* PASSAGE CARD */
+  .passage-card{ background:var(--warm); border:2px solid rgba(255,255,255,0.9); border-radius:26px; margin-bottom:18px; box-shadow:var(--sh); overflow:hidden; animation:up 0.6s 0.22s ease both; }
+  .prog-strip{ height:6px; background:rgba(38,32,28,0.06); }
+  .prog-fill { height:100%; width:0%; background:linear-gradient(90deg,var(--sage),var(--amber)); transition:width 0.6s ease; border-radius:0 4px 4px 0; }
+  .passage-inner{ padding:36px 42px 32px; }
+  .p-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:6px; }
+  .p-title  { font-size:12px; color:var(--soft); text-transform:uppercase; letter-spacing:0.9px; font-weight:700; }
+  .p-counter{ font-size:13px; color:var(--soft); font-weight:700; }
+
+  /* IDLE / DONE */
+  .idle-msg{ text-align:center; color:var(--soft); font-size:16px; line-height:1.65; padding:28px 0; }
+  .idle-msg span{ font-size:38px; display:block; margin-bottom:12px; }
+  .done-msg{ text-align:center; padding:16px 0 8px; animation:up 0.4s ease both; }
+  .done-msg span{ font-size:44px; display:block; margin-bottom:10px; }
+  .done-msg p{ font-size:20px; color:var(--sage-d); font-weight:700; }
+
+  /* ═══ SENTENCE LINE ═══ */
+  .sent-line{
+    font-size:30px;
+    line-height:2.6;
+    letter-spacing:0.025em;
+    word-spacing:0.14em;
+    color:var(--ink);
+    padding:10px 0 14px 22px;
+    border-left:5px solid var(--sage-l);
+    animation:lineIn 0.45s cubic-bezier(.4,0,.2,1) both;
+  }
+  @keyframes lineIn{ from{opacity:0;transform:translateX(-14px)} to{opacity:1;transform:none} }
+  .sent-line.focus-mode { letter-spacing:0.1em; word-spacing:0.3em; }
+  .sent-line.simple-mode{ font-size:36px; line-height:2.9; }
+  .sent-line.chunk-mode { font-size:26px; line-height:3.0; }
+
+  /* ═══ WORD SPANS ═══ */
+  .word{
+    display:inline-block;
+    border-radius:7px;
+    padding:3px 5px;
+    margin:0 1px;
+    cursor:default;
+    transition:background 0.15s, transform 0.15s, box-shadow 0.15s;
+    position:relative;
+  }
+  .word.lit{
+    background: var(--hl);
+    transform: scale(1.08);
+    box-shadow: 0 2px 12px rgba(106,158,127,0.25);
+  }
+  .word.tricky{
+    border-bottom: 2.5px dotted var(--amber);
+    cursor: help;
+  }
+  .word.tricky.lit{
+    background: var(--hl-c);
+    transform: scale(1.1);
+    box-shadow: 0 3px 16px rgba(232,168,74,0.3);
+    border-bottom: none;
+  }
+
+  /* Syllable bubble */
+  .syl{
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--ink);
+    color: white;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 5px 13px;
+    border-radius: 100px;
+    white-space: nowrap;
+    letter-spacing: 0.12em;
+    box-shadow: 0 4px 18px rgba(38,32,28,0.24);
+    pointer-events: none;
+    z-index: 50;
+  }
+  .syl::after{
+    content:'';
+    position:absolute;
+    top:100%; left:50%;
+    transform:translateX(-50%);
+    border:5px solid transparent;
+    border-top-color:var(--ink);
+  }
+  .syl .dot{ color:var(--amber); }
+  .word.tricky.lit .syl{ display:block; animation:bubbleIn 0.2s ease both; }
+  @keyframes bubbleIn{ from{opacity:0;transform:translateX(-50%) translateY(6px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
+
+  /* BOTTOM */
+  .bottom-btns{ display:flex; justify-content:center; gap:12px; flex-wrap:wrap; animation:up 0.6s 0.33s ease both; margin-bottom:28px; }
+  .btn{ padding:12px 26px; border-radius:100px; border:none; font-family:'Atkinson Hyperlegible',sans-serif; font-size:14px; font-weight:700; cursor:pointer; transition:all 0.2s; }
+  .btn-alt{ background:var(--card); color:var(--mid); border:1.5px solid rgba(38,32,28,0.12); }
+  .btn-alt:hover{ background:white; }
+  .btn-end{ background:linear-gradient(135deg,var(--sage-d),var(--sage)); color:white; box-shadow:0 4px 16px rgba(62,112,87,0.28); }
+  .btn-end:hover{ transform:translateY(-1px); }
+
+  /* SUMMARY OVERLAY */
+  .overlay{ display:none; position:fixed; inset:0; background:rgba(38,32,28,0.52); backdrop-filter:blur(6px); z-index:200; align-items:center; justify-content:center; }
+  .overlay.show{ display:flex; }
+  .sum-card{ background:var(--warm); border-radius:28px; padding:44px 48px; max-width:500px; width:90%; text-align:center; box-shadow:0 32px 80px rgba(38,32,28,0.28); animation:pop 0.4s cubic-bezier(.34,1.56,.64,1) both; }
+  .sum-card .big-e{ font-size:58px; display:block; margin-bottom:14px; }
+  .sum-card h2   { font-family:'Lora',serif; font-size:26px; margin-bottom:6px; }
+  .sum-card .sub { color:var(--mid); font-size:15px; margin-bottom:26px; line-height:1.6; }
+  .sum-stats{ display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:24px; }
+  .ss   { background:rgba(106,158,127,0.1); border-radius:14px; padding:16px 10px; }
+  .ss .v{ font-family:'Lora',serif; font-size:26px; font-weight:600; color:var(--sage-d); }
+  .ss .l{ font-size:11px; color:var(--soft); text-transform:uppercase; letter-spacing:0.6px; margin-top:4px; font-weight:700; }
+  .sum-msg { font-size:15px; color:var(--mid); line-height:1.7; margin-bottom:14px; }
+  .sum-next{ font-size:13px; color:var(--sage-d); font-weight:700; margin-bottom:22px; }
+  .btn-close{ background:linear-gradient(135deg,var(--sage-d),var(--sage)); color:white; border:none; border-radius:100px; padding:14px 34px; font-family:'Atkinson Hyperlegible',sans-serif; font-size:16px; font-weight:700; cursor:pointer; box-shadow:0 4px 18px rgba(62,112,87,0.3); transition:all 0.2s; }
+  .btn-close:hover{ transform:translateY(-1px); }
+
+  /* TOOLTIP */
+  .tip{ position:fixed; background:var(--ink); color:white; padding:9px 14px; border-radius:10px; font-size:13px; font-weight:700; pointer-events:none; opacity:0; transition:opacity 0.2s; z-index:500; max-width:260px; line-height:1.5; }
+  .tip.show{ opacity:1; }
+
+  /* TOAST */
+  .toast{ position:fixed; bottom:30px; left:50%; transform:translateX(-50%) translateY(18px); background:var(--ink); color:white; padding:13px 24px; border-radius:100px; font-size:14px; font-weight:700; opacity:0; transition:all 0.4s cubic-bezier(.4,0,.2,1); pointer-events:none; z-index:999; white-space:nowrap; }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+  @keyframes up { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:none} }
+  @keyframes pop{ from{opacity:0;transform:scale(0.88)}       to{opacity:1;transform:scale(1)} }
+
+  @media(max-width:580px){
+    .passage-inner{ padding:22px 18px 20px; }
+    .sent-line    { font-size:22px; padding-left:14px; }
+    .sum-card     { padding:30px 22px; }
+    .sum-stats    { grid-template-columns:1fr; }
+    .start-box    { flex-direction:column; text-align:center; }
+    .lang-strip   { gap:5px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo">
+      <div class="logo-icon">🌿</div>
+      <div class="logo-text">Read<span>Ease</span></div>
+    </div>
+    <div class="header-right">
+      <div class="day-pill" id="day-pill">Day 1 · Session 1</div>
+    </div>
+  </header>
+
+  <!-- LANGUAGE SELECTOR -->
+  <div class="lang-strip">
+    <button class="lang-btn active" id="lang-en" onclick="switchLang('en')"><span class="lang-flag">🇬🇧</span> English</button>
+    <button class="lang-btn" id="lang-hi" onclick="switchLang('hi')"><span class="lang-flag">🇮🇳</span> हिन्दी</button>
+    <button class="lang-btn" id="lang-pa" onclick="switchLang('pa')"><span class="lang-flag">🇮🇳</span> ਪੰਜਾਬੀ</button>
+  </div>
+
+  <!-- START BOX -->
+  <div class="start-box">
+    <div class="start-words">
+      <h2 id="sb-title">Ready to read? 📖</h2>
+      <p id="sb-desc">Words light up <strong>one at a time</strong> — no buttons to press.<br>Tricky words show their syllables to help you read them!</p>
+    </div>
+    <button id="big-start-btn" onclick="beginSession()">▶ Start Reading</button>
+  </div>
+
+  <!-- SPEED + PAUSE -->
+  <div class="controls-row">
+    <label id="speed-label">⏱ Reading pace:</label>
+    <input type="range" id="speed-slider" min="1" max="5" value="2" oninput="updateSpeedLabel(this.value)">
+    <span class="speed-lbl" id="speed-lbl">Slow</span>
+    <button id="pause-btn" onclick="togglePause()">⏸ Pause</button>
+  </div>
+
+  <!-- TOOLS -->
+  <div class="tools-strip">
+    <button class="tb" id="tb-chunk"  onclick="toggleTool('chunk')"><span class="ic">📦</span> Chunk Mode</button>
+    <button class="tb" id="tb-focus"  onclick="toggleTool('focus')"><span class="ic">🔦</span> Focus Mode</button>
+    <button class="tb" id="tb-simple" onclick="toggleTool('simple')"><span class="ic">✨</span> Big Text</button>
+    <button class="tb" id="tb-speech" onclick="toggleTool('speech')"><span class="ic">🔊</span> Read Aloud</button>
+  </div>
+
+  <!-- PASSAGE CARD -->
+  <div class="passage-card">
+    <div class="prog-strip"><div class="prog-fill" id="prog-fill"></div></div>
+    <div class="passage-inner">
+      <div class="p-header">
+        <span class="p-title" id="p-title">📖 Today's Story — The Forest</span>
+        <span class="p-counter" id="p-counter">Line — / —</span>
+      </div>
+      <div id="sent-box">
+        <div class="idle-msg">
+          <span>🌱</span>
+          Press <strong>Start Reading</strong> above.<br>
+          Each word lights up one by one — just follow the glow!
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM CONTROLS -->
+  <div class="bottom-btns">
+    <button class="btn btn-alt" onclick="resetSession()">🔄 Start Over</button>
+    <button class="btn btn-end" onclick="endSession()">🏁 Finish &amp; See Results</button>
+  </div>
+
+</div>
+
+<div class="tip" id="tooltip"></div>
+
+<div class="overlay" id="overlay">
+  <div class="sum-card">
+    <span class="big-e">🌟</span>
+    <h2 id="sum-title">Well done!</h2>
+    <p class="sub" id="sum-sub">You finished today's reading. Every line you read builds your strength!</p>
+    <div class="sum-stats">
+      <div class="ss"><div class="v" id="s-lines">—</div><div class="l" id="s-lines-label">Lines Read</div></div>
+      <div class="ss"><div class="v" id="s-time">—</div><div class="l" id="s-time-label">Seconds</div></div>
+    </div>
+    <p class="sum-msg"  id="s-msg">You kept going — that's what matters most.</p>
+    <p class="sum-next" id="s-next">🌱 Come back tomorrow for a new story.</p>
+    <button class="btn-close" onclick="closeOverlay()" id="sum-close-btn">✓ Close &amp; Save</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════
+//  PASSAGES — English, Hindi, Punjabi (3 days each)
+// ══════════════════════════════════════════════
+const ALL_PASSAGES = {
+  en: [
+    [ // Day 1 — Forest
+      "The forest wakes up slowly each morning.",
+      "Light comes in through the tops of the trees.",
+      "Small birds start to sing soft, gentle songs.",
+      "Their voices drift between the tall, old trees.",
+      "A stream runs nearby with a quiet sound.",
+      "It winds past mossy rocks and smooth stones.",
+      "The air smells clean — like pine and wet earth.",
+      "That smell feels both calm and very alive.",
+      "In this quiet place, time slows right down.",
+      "Leaves move gently in a soft, cool breeze.",
+      "A small creature darts across the forest floor.",
+      "Everything here is linked to everything else.",
+      "The roots below feed the tall trees above.",
+      "Tiny fungi spread through the soft, dark soil.",
+      "Birds carry seeds far across the land.",
+      "Nature shows us how to work together — every single day."
+    ],
+    [ // Day 2 — Ocean
+      "The ocean stretches out as far as you can see.",
+      "Waves roll gently onto the sandy shore.",
+      "Seagulls call as they glide over the water.",
+      "The salt air fills your lungs with every breath.",
+      "Tide pools hide small crabs and colorful shells.",
+      "Dolphins sometimes leap beyond the crashing waves.",
+      "Sandpipers race along the wet edge of the sea.",
+      "The sun sparkles like diamonds on the surface.",
+      "Seaweed sways just below the clear, cold water.",
+      "A gentle breeze carries the scent of salt and summer.",
+      "Pelicans dive headfirst to catch their dinner.",
+      "The tide comes in, then slowly goes back out.",
+      "Barnacles cling tightly to the ancient rocks.",
+      "Jellyfish drift with the currents, soft and glowing.",
+      "Children build sandcastles near the water's edge.",
+      "The ocean reminds us how vast and beautiful the world is."
+    ],
+    [ // Day 3 — Night Sky
+      "As the sun sets, the sky turns deep orange and purple.",
+      "One by one, stars begin to appear overhead.",
+      "The moon rises slowly, casting silver light.",
+      "Crickets start their nightly chorus in the grass.",
+      "A cool breeze whispers through the darkening trees.",
+      "Bats flutter silently, hunting for insects.",
+      "The Milky Way stretches like a river of light.",
+      "Shooting stars race across the sky in an instant.",
+      "Owls call to each other from far away.",
+      "Fireflies blink in the meadow like tiny lanterns.",
+      "The night air smells of dew and sleeping flowers.",
+      "Planets shine steadily among the twinkling stars.",
+      "A satellite moves slowly across the darkness.",
+      "The world feels peaceful and full of wonder.",
+      "Night wraps everything in a soft, quiet blanket.",
+      "Tomorrow the sun will rise again, but tonight belongs to the stars."
+    ]
+  ],
+
+  hi: [
+    [ // Day 1 — जंगल (Forest)
+      "जंगल हर सुबह धीरे-धीरे जागता है।",
+      "पेड़ों की चोटियों से रोशनी आती है।",
+      "छोटे पक्षी मीठे, कोमल गाने गाने लगते हैं।",
+      "उनकी आवाज़ें पुराने, ऊँचे पेड़ों के बीच तैरती हैं।",
+      "पास में एक नाला धीरे-धीरे बहता है।",
+      "वह काई-ढके पत्थरों के पास से गुज़रता है।",
+      "हवा में चीड़ और गीली मिट्टी की खुशबू है।",
+      "वह खुशबू शांत और ताज़गी भरी लगती है।",
+      "इस शांत जगह पर समय धीमा पड़ जाता है।",
+      "पत्तियाँ ठंडी, कोमल हवा में हिलती हैं।",
+      "एक छोटा जानवर जंगल की ज़मीन पर दौड़ता है।",
+      "यहाँ हर चीज़ एक-दूसरे से जुड़ी हुई है।",
+      "नीचे की जड़ें ऊपर के पेड़ों को पोषण देती हैं।",
+      "छोटी-छोटी फफूँद नरम, काली मिट्टी में फैलती है।",
+      "पक्षी दूर-दूर तक बीज ले जाते हैं।",
+      "प्रकृति हमें हर दिन मिलकर काम करना सिखाती है।"
+    ],
+    [ // Day 2 — नदी (River)
+      "नदी पहाड़ों से नीचे की ओर बहती है।",
+      "उसका पानी एकदम साफ और ठंडा है।",
+      "किनारे पर रंग-बिरंगे पत्थर चमकते हैं।",
+      "मछलियाँ पानी में तेज़ी से तैरती हैं।",
+      "बगुले किनारे पर खड़े होकर शिकार करते हैं।",
+      "बच्चे उथले पानी में खेलते और हँसते हैं।",
+      "नदी की आवाज़ बहुत मीठी और सुकून देने वाली है।",
+      "पेड़ नदी के किनारे अपनी परछाईं डालते हैं।",
+      "तितलियाँ फूलों के बीच मँडराती हैं।",
+      "दोपहर की धूप पानी पर चमकती है।",
+      "नदी आगे बढ़ती रहती है, रुकती नहीं।",
+      "वह मैदानों और गाँवों से होकर गुज़रती है।",
+      "किसान उसके पानी से अपनी फसल सींचते हैं।",
+      "नदी सबको जीवन देती है।",
+      "शाम को सूरज नदी में डूबता हुआ दिखता है।",
+      "नदी की कहानी कभी खत्म नहीं होती।"
+    ],
+    [ // Day 3 — आसमान (Sky)
+      "सूरज ढलने पर आसमान नारंगी और बैंगनी हो जाता है।",
+      "एक-एक कर तारे निकलने लगते हैं।",
+      "चाँद धीरे-धीरे उगता है और चाँदनी बिखेरता है।",
+      "रात के अँधेरे में झींगुर बोलने लगते हैं।",
+      "ठंडी हवा पेड़ों में सरसराती है।",
+      "चमगादड़ चुपचाप उड़कर कीड़े पकड़ते हैं।",
+      "आकाशगंगा प्रकाश की नदी जैसी दिखती है।",
+      "टूटते तारे पल भर में आकाश पार कर जाते हैं।",
+      "उल्लू एक-दूसरे को दूर से पुकारते हैं।",
+      "जुगनू घास के मैदान में टिमटिमाते हैं।",
+      "रात की हवा में ओस और सोए हुए फूलों की खुशबू है।",
+      "ग्रह टिमटिमाते तारों के बीच स्थिर चमकते हैं।",
+      "एक उपग्रह अँधेरे में धीरे-धीरे आगे बढ़ता है।",
+      "दुनिया शांत और अद्भुत लगती है।",
+      "रात सबको एक नरम, शांत चादर में लपेट लेती है।",
+      "कल फिर सूरज उगेगा, पर आज की रात तारों की है।"
+    ]
+  ],
+
+  pa: [
+    [ // Day 1 — ਜੰਗਲ (Forest)
+      "ਜੰਗਲ ਹਰ ਸਵੇਰੇ ਹੌਲੀ-ਹੌਲੀ ਜਾਗਦਾ ਹੈ।",
+      "ਰੁੱਖਾਂ ਦੀਆਂ ਟਾਹਣੀਆਂ ਤੋਂ ਰੋਸ਼ਨੀ ਆਉਂਦੀ ਹੈ।",
+      "ਛੋਟੇ ਪੰਛੀ ਮਿੱਠੇ, ਕੋਮਲ ਗੀਤ ਗਾਉਣ ਲੱਗਦੇ ਹਨ।",
+      "ਉਹਨਾਂ ਦੀਆਂ ਆਵਾਜ਼ਾਂ ਪੁਰਾਣੇ ਰੁੱਖਾਂ ਵਿਚਕਾਰ ਤੈਰਦੀਆਂ ਹਨ।",
+      "ਨੇੜੇ ਇੱਕ ਨਾਲਾ ਧੀਮੀ ਆਵਾਜ਼ ਨਾਲ ਵਹਿੰਦਾ ਹੈ।",
+      "ਇਹ ਕਾਈ ਨਾਲ ਢੱਕੇ ਪੱਥਰਾਂ ਕੋਲੋਂ ਲੰਘਦਾ ਹੈ।",
+      "ਹਵਾ ਵਿੱਚ ਚੀਲ੍ਹ ਅਤੇ ਗਿੱਲੀ ਮਿੱਟੀ ਦੀ ਮਹਿਕ ਹੈ।",
+      "ਉਹ ਖੁਸ਼ਬੂ ਸ਼ਾਂਤ ਅਤੇ ਤਾਜ਼ਗੀ ਭਰੀ ਲੱਗਦੀ ਹੈ।",
+      "ਇਸ ਸ਼ਾਂਤ ਜਗ੍ਹਾ 'ਤੇ ਸਮਾਂ ਧੀਮਾ ਪੈ ਜਾਂਦਾ ਹੈ।",
+      "ਪੱਤੇ ਠੰਡੀ, ਕੋਮਲ ਹਵਾ ਵਿੱਚ ਹਿੱਲਦੇ ਹਨ।",
+      "ਇੱਕ ਛੋਟਾ ਜਾਨਵਰ ਜੰਗਲ ਦੀ ਜ਼ਮੀਨ 'ਤੇ ਦੌੜਦਾ ਹੈ।",
+      "ਇੱਥੇ ਹਰ ਚੀਜ਼ ਇੱਕ-ਦੂਜੀ ਨਾਲ ਜੁੜੀ ਹੋਈ ਹੈ।",
+      "ਹੇਠਾਂ ਦੀਆਂ ਜੜ੍ਹਾਂ ਉੱਪਰ ਦੇ ਰੁੱਖਾਂ ਨੂੰ ਖੁਰਾਕ ਦਿੰਦੀਆਂ ਹਨ।",
+      "ਛੋਟੀਆਂ ਉੱਲੀਆਂ ਨਰਮ, ਕਾਲੀ ਮਿੱਟੀ ਵਿੱਚ ਫੈਲਦੀਆਂ ਹਨ।",
+      "ਪੰਛੀ ਦੂਰ-ਦੂਰ ਤੱਕ ਬੀਜ ਲੈ ਜਾਂਦੇ ਹਨ।",
+      "ਕੁਦਰਤ ਸਾਨੂੰ ਹਰ ਰੋਜ਼ ਮਿਲ-ਜੁਲ ਕੇ ਕੰਮ ਕਰਨਾ ਸਿਖਾਉਂਦੀ ਹੈ।"
+    ],
+    [ // Day 2 — ਦਰਿਆ (River)
+      "ਦਰਿਆ ਪਹਾੜਾਂ ਤੋਂ ਹੇਠਾਂ ਵੱਲ ਵਹਿੰਦਾ ਹੈ।",
+      "ਇਸਦਾ ਪਾਣੀ ਬਿਲਕੁਲ ਸਾਫ਼ ਅਤੇ ਠੰਡਾ ਹੈ।",
+      "ਕੰਢੇ 'ਤੇ ਰੰਗ-ਬਿਰੰਗੇ ਪੱਥਰ ਚਮਕਦੇ ਹਨ।",
+      "ਮੱਛੀਆਂ ਪਾਣੀ ਵਿੱਚ ਤੇਜ਼ੀ ਨਾਲ ਤੈਰਦੀਆਂ ਹਨ।",
+      "ਬਗਲੇ ਕੰਢੇ 'ਤੇ ਖੜ੍ਹੇ ਹੋ ਕੇ ਮੱਛੀਆਂ ਫੜਦੇ ਹਨ।",
+      "ਬੱਚੇ ਖੋਖਲੇ ਪਾਣੀ ਵਿੱਚ ਖੇਡਦੇ ਅਤੇ ਹੱਸਦੇ ਹਨ।",
+      "ਦਰਿਆ ਦੀ ਆਵਾਜ਼ ਬਹੁਤ ਮਿੱਠੀ ਅਤੇ ਸੁਕੂਨ ਭਰੀ ਹੈ।",
+      "ਰੁੱਖ ਦਰਿਆ ਦੇ ਕੰਢੇ ਆਪਣੀ ਛਾਂ ਪਾਉਂਦੇ ਹਨ।",
+      "ਤਿਤਲੀਆਂ ਫੁੱਲਾਂ ਵਿਚਕਾਰ ਮੰਡਰਾਉਂਦੀਆਂ ਹਨ।",
+      "ਦੁਪਹਿਰ ਦੀ ਧੁੱਪ ਪਾਣੀ 'ਤੇ ਚਮਕਦੀ ਹੈ।",
+      "ਦਰਿਆ ਅੱਗੇ ਵੱਧਦਾ ਰਹਿੰਦਾ ਹੈ, ਰੁਕਦਾ ਨਹੀਂ।",
+      "ਇਹ ਮੈਦਾਨਾਂ ਅਤੇ ਪਿੰਡਾਂ ਵਿੱਚੋਂ ਲੰਘਦਾ ਹੈ।",
+      "ਕਿਸਾਨ ਇਸਦੇ ਪਾਣੀ ਨਾਲ ਆਪਣੀਆਂ ਫ਼ਸਲਾਂ ਸਿੰਜਦੇ ਹਨ।",
+      "ਦਰਿਆ ਸਭ ਨੂੰ ਜ਼ਿੰਦਗੀ ਦਿੰਦਾ ਹੈ।",
+      "ਸ਼ਾਮ ਨੂੰ ਸੂਰਜ ਦਰਿਆ ਵਿੱਚ ਡੁੱਬਦਾ ਦਿਖਦਾ ਹੈ।",
+      "ਦਰਿਆ ਦੀ ਕਹਾਣੀ ਕਦੇ ਖਤਮ ਨਹੀਂ ਹੁੰਦੀ।"
+    ],
+    [ // Day 3 — ਅਸਮਾਨ (Sky)
+      "ਸੂਰਜ ਢਲਣ 'ਤੇ ਅਸਮਾਨ ਸੰਤਰੀ ਅਤੇ ਜਾਮਨੀ ਹੋ ਜਾਂਦਾ ਹੈ।",
+      "ਇੱਕ-ਇੱਕ ਕਰਕੇ ਤਾਰੇ ਨਿਕਲਣ ਲੱਗਦੇ ਹਨ।",
+      "ਚੰਦ ਹੌਲੀ-ਹੌਲੀ ਚੜ੍ਹਦਾ ਹੈ ਅਤੇ ਚਾਂਦਨੀ ਖਿਲਾਰਦਾ ਹੈ।",
+      "ਰਾਤ ਦੇ ਹਨੇਰੇ ਵਿੱਚ ਝੀਂਗਰ ਬੋਲਣ ਲੱਗਦੇ ਹਨ।",
+      "ਠੰਡੀ ਹਵਾ ਰੁੱਖਾਂ ਵਿੱਚ ਸਰਸਰਾਉਂਦੀ ਹੈ।",
+      "ਚਮਗਿੱਦੜ ਚੁੱਪਚਾਪ ਉੱਡ ਕੇ ਕੀੜੇ ਫੜਦੇ ਹਨ।",
+      "ਆਕਾਸ਼ਗੰਗਾ ਰੋਸ਼ਨੀ ਦੀ ਨਦੀ ਵਰਗੀ ਦਿਖਦੀ ਹੈ।",
+      "ਟੁੱਟਦੇ ਤਾਰੇ ਪਲ ਭਰ ਵਿੱਚ ਅਸਮਾਨ ਪਾਰ ਕਰ ਜਾਂਦੇ ਹਨ।",
+      "ਉੱਲੂ ਇੱਕ-ਦੂਜੇ ਨੂੰ ਦੂਰੋਂ ਪੁਕਾਰਦੇ ਹਨ।",
+      "ਜੁਗਨੂੰ ਘਾਹ ਦੇ ਮੈਦਾਨ ਵਿੱਚ ਟਿਮਟਿਮਾਉਂਦੇ ਹਨ।",
+      "ਰਾਤ ਦੀ ਹਵਾ ਵਿੱਚ ਤ੍ਰੇਲ ਅਤੇ ਸੁੱਤੇ ਫੁੱਲਾਂ ਦੀ ਖੁਸ਼ਬੂ ਹੈ।",
+      "ਗ੍ਰਹਿ ਟਿਮਟਿਮਾਉਂਦੇ ਤਾਰਿਆਂ ਵਿਚਕਾਰ ਸਥਿਰ ਚਮਕਦੇ ਹਨ।",
+      "ਇੱਕ ਉਪਗ੍ਰਹਿ ਹਨੇਰੇ ਵਿੱਚ ਹੌਲੀ-ਹੌਲੀ ਅੱਗੇ ਵੱਧਦਾ ਹੈ।",
+      "ਦੁਨੀਆ ਸ਼ਾਂਤ ਅਤੇ ਅਦਭੁਤ ਲੱਗਦੀ ਹੈ।",
+      "ਰਾਤ ਸਭ ਨੂੰ ਇੱਕ ਨਰਮ, ਸ਼ਾਂਤ ਚਾਦਰ ਵਿੱਚ ਲਪੇਟ ਲੈਂਦੀ ਹੈ।",
+      "ਕੱਲ੍ਹ ਫਿਰ ਸੂਰਜ ਚੜ੍ਹੇਗਾ, ਪਰ ਅੱਜ ਦੀ ਰਾਤ ਤਾਰਿਆਂ ਦੀ ਹੈ।"
+    ]
+  ]
+};
+
+// Tricky words for English only (syllable breakdowns)
+const TRICKY = {
+  forest:   { syl:["for","est"],       tip:"A large area full of trees" },
+  morning:  { syl:["morn","ing"],      tip:"The early part of the day" },
+  gentle:   { syl:["gen","tle"],       tip:"Very soft and kind" },
+  gently:   { syl:["gent","ly"],       tip:"In a very soft and kind way" },
+  voices:   { syl:["voi","ces"],       tip:"The sounds people or animals make" },
+  between:  { syl:["be","tween"],      tip:"In the middle of two things" },
+  nearby:   { syl:["near","by"],       tip:"Not far away; close" },
+  mossy:    { syl:["moss","y"],        tip:"Covered in soft green moss" },
+  breeze:   { syl:["breeze"],          tip:"A light, gentle wind" },
+  creature: { syl:["crea","ture"],     tip:"Any living animal" },
+  across:   { syl:["a","cross"],       tip:"From one side to the other" },
+  everything:{ syl:["eve","ry","thing"], tip:"All things together" },
+  linked:   { syl:["linked"],          tip:"Joined and connected together" },
+  below:    { syl:["be","low"],        tip:"Underneath; lower down" },
+  above:    { syl:["a","bove"],        tip:"Higher up; over something" },
+  fungi:    { syl:["fun","gi"],        tip:"Tiny living things in the soil" },
+  carries:  { syl:["car","ries"],      tip:"Takes something from one place to another" },
+  nature:   { syl:["na","ture"],       tip:"The natural world of plants and animals" },
+  together: { syl:["to","geth","er"],  tip:"All working as one" },
+  single:   { syl:["sin","gle"],       tip:"Just one" },
+  ocean:    { syl:["o","cean"],        tip:"The vast salt water that covers most of Earth" },
+  waves:    { syl:["waves"],           tip:"Ridges of water that move across the surface" },
+  seagulls: { syl:["sea","gulls"],     tip:"Birds that live near the coast" },
+  dolphins: { syl:["dol","phins"],     tip:"Intelligent sea mammals" },
+  sandpipers:{ syl:["sand","pi","pers"], tip:"Small birds that run on beaches" },
+  seaweed:  { syl:["sea","weed"],      tip:"Plants that grow in the ocean" },
+  pelicans: { syl:["pel","i","cans"],  tip:"Large birds with long beaks that fish" },
+  barnacles:{ syl:["bar","na","cles"], tip:"Small shelled animals that stick to rocks" },
+  jellyfish:{ syl:["jel","ly","fish"], tip:"Soft sea creatures that can sting" },
+  chorus:   { syl:["cho","rus"],       tip:"A group of singers; many sounds together" },
+  satellite:{ syl:["sat","el","lite"], tip:"An object that orbits a planet" }
+};
+
+// UI string translations
+const UI_STRINGS = {
+  en: {
+    sbTitle: "Ready to read? 📖",
+    sbDesc: "Words light up <strong>one at a time</strong> — no buttons to press.<br>Tricky words show their syllables to help you read them!",
+    startBtn: "▶ Start Reading",
+    reading: "Reading…",
+    speedLabel: "⏱ Reading pace:",
+    speeds: {1:"Very Slow", 2:"Slow", 3:"Medium", 4:"Fast", 5:"Very Fast"},
+    pause: "⏸ Pause",
+    resume: "▶ Resume",
+    idleMsg: "Press <strong>Start Reading</strong> above.<br>Each word lights up one by one — just follow the glow!",
+    doneMsg: "You read the whole story — amazing work!",
+    pTitle: "📖 Today's Story",
+    sumTitle: "Well done!",
+    sumSub: "You finished today's reading. Every line you read builds your strength!",
+    linesLabel: "Lines Read",
+    timeLabel: "Seconds",
+    sumMsg: "You did it! Every line you read makes you stronger.",
+    sumNext: "🌱 Come back tomorrow for a new story.",
+    sumClose: "✓ Close & Save",
+    stories: ["The Forest","The Ocean","The Night Sky"],
+    toastStart: "✨ Words will glow one at a time — just follow along!",
+    toastReset: "All clear! Ready when you are 🌱",
+    toastDone: "🌟 You read every single word — brilliant!",
+    toastClose: "Great work today! See you next time 🌿",
+    toastPause: "⏸ Paused — take your time, no rush at all!",
+    toastResume: "▶ Continuing…",
+    toastTricky: "✨ You clicked a tricky word — the syllables help you read it!",
+    toastSpeechOn: "🔊 Read Aloud on — words will be spoken",
+    toastSpeechOff: "🔇 Read Aloud off",
+    toastNoStart: "Press Start Reading first!",
+    toastChunk: "📦 Chunk Mode on — looser, bigger layout",
+    toastFocus: "🔦 Focus Mode on — more space between every word",
+    toastSimple: "✨ Big Text on — nice and large!",
+    toastModeOff: "Mode turned off",
+    lang: "en-US"
+  },
+  hi: {
+    sbTitle: "पढ़ने के लिए तैयार? 📖",
+    sbDesc: "शब्द <strong>एक-एक करके</strong> रोशन होते हैं — कोई बटन नहीं दबाना।<br>मुश्किल शब्दों में अक्षर-विभाजन दिखाई देगा!",
+    startBtn: "▶ पढ़ना शुरू करें",
+    reading: "पढ़ रहे हैं…",
+    speedLabel: "⏱ पढ़ने की गति:",
+    speeds: {1:"बहुत धीमी", 2:"धीमी", 3:"सामान्य", 4:"तेज़", 5:"बहुत तेज़"},
+    pause: "⏸ रुकें",
+    resume: "▶ जारी रखें",
+    idleMsg: "ऊपर <strong>पढ़ना शुरू करें</strong> दबाएँ।<br>हर शब्द एक-एक करके जगमगाएगा — बस उसका पीछा करें!",
+    doneMsg: "आपने पूरी कहानी पढ़ ली — शाबाश!",
+    pTitle: "📖 आज की कहानी",
+    sumTitle: "बहुत बढ़िया!",
+    sumSub: "आपने आज की पढ़ाई पूरी की। हर पंक्ति आपको और मज़बूत बनाती है!",
+    linesLabel: "पंक्तियाँ पढ़ीं",
+    timeLabel: "सेकंड",
+    sumMsg: "आपने कर दिखाया! हर पंक्ति आपको और बेहतर बनाती है।",
+    sumNext: "🌱 कल एक नई कहानी के लिए आएं।",
+    sumClose: "✓ बंद करें और सेव करें",
+    stories: ["जंगल","नदी","आसमान"],
+    toastStart: "✨ शब्द एक-एक करके चमकेंगे — बस उनका पीछा करें!",
+    toastReset: "सब साफ़! जब तैयार हों 🌱",
+    toastDone: "🌟 आपने हर शब्द पढ़ा — शानदार!",
+    toastClose: "आज का काम बढ़िया रहा! फिर मिलेंगे 🌿",
+    toastPause: "⏸ रुके — जितना समय चाहिए लें!",
+    toastResume: "▶ जारी है…",
+    toastTricky: "✨ आपने एक मुश्किल शब्द पर क्लिक किया!",
+    toastSpeechOn: "🔊 ज़ोर से पढ़ना चालू — शब्द बोले जाएंगे",
+    toastSpeechOff: "🔇 ज़ोर से पढ़ना बंद",
+    toastNoStart: "पहले पढ़ना शुरू करें!",
+    toastChunk: "📦 चंक मोड चालू",
+    toastFocus: "🔦 फोकस मोड चालू",
+    toastSimple: "✨ बड़ा टेक्स्ट चालू",
+    toastModeOff: "मोड बंद",
+    lang: "hi-IN"
+  },
+  pa: {
+    sbTitle: "ਪੜ੍ਹਨ ਲਈ ਤਿਆਰ? 📖",
+    sbDesc: "ਸ਼ਬਦ <strong>ਇੱਕ-ਇੱਕ ਕਰਕੇ</strong> ਜਗਮਗਾਉਂਦੇ ਹਨ — ਕੋਈ ਬਟਨ ਨਹੀਂ ਦਬਾਉਣਾ।<br>ਔਖੇ ਸ਼ਬਦਾਂ ਵਿੱਚ ਅੱਖਰ-ਵੰਡ ਦਿਖਾਈ ਦੇਵੇਗੀ!",
+    startBtn: "▶ ਪੜ੍ਹਨਾ ਸ਼ੁਰੂ ਕਰੋ",
+    reading: "ਪੜ੍ਹ ਰਹੇ ਹਾਂ…",
+    speedLabel: "⏱ ਪੜ੍ਹਨ ਦੀ ਗਤੀ:",
+    speeds: {1:"ਬਹੁਤ ਹੌਲੀ", 2:"ਹੌਲੀ", 3:"ਦਰਮਿਆਨੀ", 4:"ਤੇਜ਼", 5:"ਬਹੁਤ ਤੇਜ਼"},
+    pause: "⏸ ਰੁਕੋ",
+    resume: "▶ ਜਾਰੀ ਰੱਖੋ",
+    idleMsg: "ਉੱਪਰ <strong>ਪੜ੍ਹਨਾ ਸ਼ੁਰੂ ਕਰੋ</strong> ਦਬਾਓ।<br>ਹਰ ਸ਼ਬਦ ਇੱਕ-ਇੱਕ ਕਰਕੇ ਚਮਕੇਗਾ — ਬੱਸ ਉਸ ਦਾ ਪਿੱਛਾ ਕਰੋ!",
+    doneMsg: "ਤੁਸੀਂ ਪੂਰੀ ਕਹਾਣੀ ਪੜ੍ਹ ਲਈ — ਸ਼ਾਬਾਸ਼!",
+    pTitle: "📖 ਅੱਜ ਦੀ ਕਹਾਣੀ",
+    sumTitle: "ਬਹੁਤ ਵਧੀਆ!",
+    sumSub: "ਤੁਸੀਂ ਅੱਜ ਦੀ ਪੜ੍ਹਾਈ ਪੂਰੀ ਕੀਤੀ। ਹਰ ਸਤਰ ਤੁਹਾਨੂੰ ਹੋਰ ਮਜ਼ਬੂਤ ਬਣਾਉਂਦੀ ਹੈ!",
+    linesLabel: "ਸਤਰਾਂ ਪੜ੍ਹੀਆਂ",
+    timeLabel: "ਸਕਿੰਟ",
+    sumMsg: "ਤੁਸੀਂ ਕਰ ਦਿਖਾਇਆ! ਹਰ ਸਤਰ ਤੁਹਾਨੂੰ ਬਿਹਤਰ ਬਣਾਉਂਦੀ ਹੈ।",
+    sumNext: "🌱 ਕੱਲ੍ਹ ਨਵੀਂ ਕਹਾਣੀ ਲਈ ਆਓ।",
+    sumClose: "✓ ਬੰਦ ਕਰੋ ਅਤੇ ਸੇਵ ਕਰੋ",
+    stories: ["ਜੰਗਲ","ਦਰਿਆ","ਅਸਮਾਨ"],
+    toastStart: "✨ ਸ਼ਬਦ ਇੱਕ-ਇੱਕ ਕਰਕੇ ਚਮਕਣਗੇ — ਬੱਸ ਪਿੱਛਾ ਕਰੋ!",
+    toastReset: "ਸਭ ਸਾਫ਼! ਜਦੋਂ ਤਿਆਰ ਹੋ 🌱",
+    toastDone: "🌟 ਤੁਸੀਂ ਹਰ ਸ਼ਬਦ ਪੜ੍ਹਿਆ — ਸ਼ਾਨਦਾਰ!",
+    toastClose: "ਅੱਜ ਦਾ ਕੰਮ ਵਧੀਆ ਰਿਹਾ! ਫਿਰ ਮਿਲਾਂਗੇ 🌿",
+    toastPause: "⏸ ਰੁਕੋ — ਜਿੰਨਾ ਸਮਾਂ ਚਾਹੀਦਾ ਲਓ!",
+    toastResume: "▶ ਜਾਰੀ ਹੈ…",
+    toastTricky: "✨ ਤੁਸੀਂ ਔਖੇ ਸ਼ਬਦ 'ਤੇ ਕਲਿੱਕ ਕੀਤਾ!",
+    toastSpeechOn: "🔊 ਉੱਚੀ ਆਵਾਜ਼ ਵਿੱਚ ਪੜ੍ਹਨਾ ਚਾਲੂ",
+    toastSpeechOff: "🔇 ਉੱਚੀ ਆਵਾਜ਼ ਬੰਦ",
+    toastNoStart: "ਪਹਿਲਾਂ ਪੜ੍ਹਨਾ ਸ਼ੁਰੂ ਕਰੋ!",
+    toastChunk: "📦 ਚੰਕ ਮੋਡ ਚਾਲੂ",
+    toastFocus: "🔦 ਫੋਕਸ ਮੋਡ ਚਾਲੂ",
+    toastSimple: "✨ ਵੱਡਾ ਟੈਕਸਟ ਚਾਲੂ",
+    toastModeOff: "ਮੋਡ ਬੰਦ",
+    lang: "pa-IN"
+  }
+};
+
+// Build syllable HTML — amber dots between parts
+function sylHtml(syl) {
+  return syl.map((s,i) =>
+    i < syl.length-1
+      ? `<span>${s}</span><span class="dot"> · </span>`
+      : `<span>${s}</span>`
+  ).join('');
+}
+
+// ══ SPEED MAP (ms per word) — slower defaults for dyslexic-friendly reading ══
+const SPEED = { 1:1600, 2:1050, 3:680, 4:420, 5:250 };
+// Extra delay on tricky words
+const TRICKY_EXTRA_DELAY = 500;
+
+// ══ STATE ══
+let sessionOn = false, currentLine = 0, startTime = null;
+let paused = false, wordTimer = null, wordIdx = 0;
+let activeMode = null;
+let speechEnabled = false;
+let currentLang = 'en';
+let isSpeaking = false; // FIX: track speech state to prevent repeats
+
+let currentDay = 1;
+let currentPassage = [];
+let TOTAL = 0;
+
+// Init day from localStorage
+(function initDay() {
+  const today = new Date().toDateString();
+  const storedDate = localStorage.getItem('readease_date');
+  let storedDay = parseInt(localStorage.getItem('readease_day'), 10);
+  if (isNaN(storedDay)) storedDay = 1;
+
+  if (storedDate === today) {
+    currentDay = storedDay;
+  } else {
+    currentDay = (storedDate === null) ? 1 : storedDay + 1;
+    localStorage.setItem('readease_date', today);
+    localStorage.setItem('readease_day', currentDay);
+  }
+  document.getElementById('day-pill').textContent = `Day ${currentDay} · Session 1`;
+})();
+
+function initPassage() {
+  const passageIndex = (currentDay - 1) % 3;
+  currentPassage = ALL_PASSAGES[currentLang][passageIndex];
+  TOTAL = currentPassage.length;
+}
+initPassage();
+
+// Apply UI language strings
+function applyUIStrings(lang) {
+  const s = UI_STRINGS[lang];
+  document.getElementById('sb-title').textContent = s.sbTitle;
+  document.getElementById('sb-desc').innerHTML = s.sbDesc;
+  document.getElementById('big-start-btn').textContent = s.startBtn;
+  document.getElementById('speed-label').textContent = s.speedLabel;
+  const speedVal = parseInt(document.getElementById('speed-slider').value);
+  document.getElementById('speed-lbl').textContent = s.speeds[speedVal];
+  document.getElementById('pause-btn').innerHTML = paused ? s.resume : s.pause;
+  document.getElementById('sum-title').textContent = s.sumTitle;
+  document.getElementById('sum-sub').textContent = s.sumSub;
+  document.getElementById('s-lines-label').textContent = s.linesLabel;
+  document.getElementById('s-time-label').textContent = s.timeLabel;
+  document.getElementById('sum-close-btn').textContent = s.sumClose;
+
+  // Update passage title
+  const passageIndex = (currentDay - 1) % 3;
+  document.getElementById('p-title').textContent = s.pTitle + ' — ' + s.stories[passageIndex];
+
+  // Update idle message if session not started
+  if (!sessionOn) {
+    const box = document.getElementById('sent-box');
+    if (box.querySelector('.idle-msg')) {
+      box.innerHTML = `<div class="idle-msg"><span>🌱</span>${s.idleMsg}</div>`;
+    }
+  }
+}
+
+// ══════════════════════════════════════════════
+//  LANGUAGE SWITCH
+// ══════════════════════════════════════════════
+function switchLang(lang) {
+  if (lang === currentLang) return;
+  if (sessionOn) {
+    // Reset session on language switch
+    resetSession();
+  }
+  currentLang = lang;
+  // Update active button
+  ['en','hi','pa'].forEach(l => {
+    document.getElementById('lang-' + l).classList.toggle('active', l === lang);
+  });
+  initPassage();
+  applyUIStrings(lang);
+  document.getElementById('p-counter').textContent = `Line — / ${TOTAL}`;
+}
+
+// ══════════════════════════════════════════════
+//  SPEED LABEL
+// ══════════════════════════════════════════════
+function updateSpeedLabel(v) {
+  document.getElementById('speed-lbl').textContent = UI_STRINGS[currentLang].speeds[v];
+}
+
+// ══════════════════════════════════════════════
+//  SPEECH HELPERS — FIX: prevent repeat triggers
+// ══════════════════════════════════════════════
+function speakWord(text) {
+  if (!speechEnabled) return;
+  // Cancel any pending or active speech first
+  window.speechSynthesis.cancel();
+  isSpeaking = false;
+
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = UI_STRINGS[currentLang].lang;
+  utterance.rate = 0.82; // clear, deliberate pace
+  utterance.pitch = 1.0;
+  utterance.onstart = () => { isSpeaking = true; };
+  utterance.onend   = () => { isSpeaking = false; };
+  utterance.onerror = () => { isSpeaking = false; };
+  window.speechSynthesis.speak(utterance);
+}
+
+function cancelSpeech() {
+  window.speechSynthesis.cancel();
+  isSpeaking = false;
+}
+
+// ══════════════════════════════════════════════
+//  BEGIN SESSION
+// ══════════════════════════════════════════════
+function beginSession() {
+  if (sessionOn) return;
+  sessionOn = true;
+  startTime = Date.now();
+  const s = UI_STRINGS[currentLang];
+  document.getElementById('big-start-btn').disabled = true;
+  document.getElementById('big-start-btn').textContent = s.reading;
+  document.getElementById('pause-btn').classList.add('show');
+  document.getElementById('pause-btn').innerHTML = s.pause;
+  showLine(0);
+  toast(s.toastStart);
+}
+
+// ══════════════════════════════════════════════
+//  SHOW ONE LINE
+// ══════════════════════════════════════════════
+function showLine(idx) {
+  if (idx >= TOTAL) { showDone(); return; }
+  currentLine = idx;
+  cancelSpeech(); // FIX: cancel any lingering speech when moving to new line
+
+  const raw   = currentPassage[idx];
+  // For non-English, words are separated by spaces
+  const words = raw.split(/\s+/);
+
+  let html = `<div class="sent-line" id="cur-line">`;
+  words.forEach((w, i) => {
+    if (currentLang === 'en') {
+      const clean = w.replace(/[^a-zA-Z]/g,'').toLowerCase();
+      const info  = TRICKY[clean];
+      if (info) {
+        html += `<span class="word tricky" data-i="${i}" data-tip="${info.tip}"
+                   onmouseenter="showTipEl(event,this)" onmouseleave="hideTip()"
+                 >${w}<span class="syl">${sylHtml(info.syl)}</span></span> `;
+      } else {
+        html += `<span class="word" data-i="${i}">${w}</span> `;
+      }
+    } else {
+      html += `<span class="word" data-i="${i}">${w}</span> `;
+    }
+  });
+  html += '</div>';
+
+  document.getElementById('sent-box').innerHTML = html;
+  applyMode();
+
+  document.getElementById('prog-fill').style.width = (((idx+1)/TOTAL)*100) + '%';
+  document.getElementById('p-counter').textContent = `Line ${idx+1} / ${TOTAL}`;
+
+  wordIdx = 0;
+  clearTimeout(wordTimer);
+  highlightNextWord();
+}
+
+// ══════════════════════════════════════════════
+//  WORD-BY-WORD HIGHLIGHT ENGINE — FIX: no double speech
+// ══════════════════════════════════════════════
+function highlightNextWord() {
+  if (!sessionOn || paused) return;
+
+  const line = document.getElementById('cur-line');
+  if (!line) return;
+
+  const wordEls = Array.from(line.querySelectorAll('.word'));
+
+  // Remove previous highlight
+  wordEls.forEach(w => w.classList.remove('lit'));
+
+  if (wordIdx >= wordEls.length) {
+    // Line complete — pause then load next
+    wordTimer = setTimeout(() => {
+      if (!sessionOn || paused) return;
+      showLine(currentLine + 1);
+    }, 1300);
+    return;
+  }
+
+  const el = wordEls[wordIdx];
+  el.classList.add('lit');
+
+  // FIX: speak only the display text of the word element,
+  // NOT including the hidden syllable span text inside tricky words.
+  // We grab only the first text node to avoid reading the syllables.
+  if (speechEnabled) {
+    // Get just the word text (first text node), not any child spans
+    let wordText = '';
+    for (let node of el.childNodes) {
+      if (node.nodeType === Node.TEXT_NODE) {
+        wordText += node.textContent;
+      }
+    }
+    wordText = wordText.trim();
+    if (wordText) speakWord(wordText);
+  }
+
+  el.scrollIntoView({ behavior:'smooth', block:'nearest' });
+
+  const speed = parseInt(document.getElementById('speed-slider').value);
+  let delay = SPEED[speed];
+  if (el.classList.contains('tricky')) {
+    delay += TRICKY_EXTRA_DELAY;
+  }
+
+  wordIdx++;
+  wordTimer = setTimeout(highlightNextWord, delay);
+}
+
+// ══════════════════════════════════════════════
+//  PAUSE / RESUME
+// ══════════════════════════════════════════════
+function togglePause() {
+  paused = !paused;
+  const btn = document.getElementById('pause-btn');
+  const s = UI_STRINGS[currentLang];
+  if (paused) {
+    clearTimeout(wordTimer);
+    cancelSpeech();
+    btn.innerHTML = s.resume;
+    btn.style.background   = 'rgba(106,158,127,0.15)';
+    btn.style.color        = 'var(--sage-d)';
+    btn.style.borderColor  = 'rgba(106,158,127,0.4)';
+    toast(s.toastPause);
+  } else {
+    btn.innerHTML = s.pause;
+    btn.style.background  = '';
+    btn.style.color       = '';
+    btn.style.borderColor = '';
+    toast(s.toastResume);
+    highlightNextWord();
+  }
+}
+
+// ══════════════════════════════════════════════
+//  ALL DONE
+// ══════════════════════════════════════════════
+function showDone() {
+  clearTimeout(wordTimer);
+  cancelSpeech();
+  const line = document.getElementById('cur-line');
+  if (line) line.querySelectorAll('.word').forEach(w => w.classList.remove('lit'));
+  const s = UI_STRINGS[currentLang];
+  document.getElementById('sent-box').innerHTML = `
+    <div class="done-msg">
+      <span>🎉</span>
+      <p>${s.doneMsg}</p>
+    </div>`;
+  document.getElementById('prog-fill').style.width = '100%';
+  document.getElementById('pause-btn').classList.remove('show');
+  toast(s.toastDone);
+}
+
+// ══════════════════════════════════════════════
+//  RESET
+// ══════════════════════════════════════════════
+function resetSession() {
+  sessionOn = false; paused = false;
+  clearTimeout(wordTimer);
+  cancelSpeech();
+  startTime = null;
+  currentLine = 0; activeMode = null; wordIdx = 0;
+
+  document.getElementById('prog-fill').style.width = '0%';
+  document.getElementById('p-counter').textContent = `Line — / ${TOTAL}`;
+  const pb = document.getElementById('pause-btn');
+  pb.classList.remove('show');
+  pb.innerHTML = UI_STRINGS[currentLang].pause;
+  pb.style.cssText = '';
+
+  ['chunk','focus','simple'].forEach(m => document.getElementById('tb-'+m).classList.remove('on'));
+
+  const startBtn = document.getElementById('big-start-btn');
+  startBtn.disabled = false;
+  startBtn.textContent = UI_STRINGS[currentLang].startBtn;
+
+  const s = UI_STRINGS[currentLang];
+  document.getElementById('sent-box').innerHTML = `
+    <div class="idle-msg">
+      <span>🌱</span>
+      ${s.idleMsg}
+    </div>`;
+  toast(s.toastReset);
+}
+
+// ══════════════════════════════════════════════
+//  FINISH & RESULTS
+// ══════════════════════════════════════════════
+function endSession() {
+  const s = UI_STRINGS[currentLang];
+  if (!startTime) { toast(s.toastNoStart); return; }
+  sessionOn = false;
+  clearTimeout(wordTimer);
+  cancelSpeech();
+  const elapsed = Math.round((Date.now() - startTime) / 1000);
+  const linesRead = Math.min(currentLine+1, TOTAL);
+  document.getElementById('s-lines').textContent = linesRead;
+  document.getElementById('s-time').textContent = elapsed;
+  document.getElementById('s-msg').textContent = s.sumMsg;
+  document.getElementById('s-next').textContent = s.sumNext;
+  document.getElementById('overlay').classList.add('show');
+}
+
+function closeOverlay() {
+  document.getElementById('overlay').classList.remove('show');
+  toast(UI_STRINGS[currentLang].toastClose);
+}
+
+// ══════════════════════════════════════════════
+//  TOOLS
+// ══════════════════════════════════════════════
+function toggleTool(tool) {
+  const s = UI_STRINGS[currentLang];
+  if (tool === 'speech') {
+    speechEnabled = !speechEnabled;
+    const btn = document.getElementById('tb-speech');
+    if (speechEnabled) {
+      btn.classList.add('on');
+      toast(s.toastSpeechOn);
+    } else {
+      btn.classList.remove('on');
+      cancelSpeech();
+      toast(s.toastSpeechOff);
+    }
+    return;
+  }
+  if (activeMode === tool) {
+    activeMode = null;
+    document.getElementById('tb-'+tool).classList.remove('on');
+    toast(s.toastModeOff);
+  } else {
+    ['chunk','focus','simple'].forEach(m => document.getElementById('tb-'+m).classList.remove('on'));
+    activeMode = tool;
+    document.getElementById('tb-'+tool).classList.add('on');
+    const msgs = {
+      chunk: s.toastChunk,
+      focus: s.toastFocus,
+      simple: s.toastSimple
+    };
+    toast(msgs[tool]);
+  }
+  applyMode();
+}
+
+function applyMode() {
+  const line = document.getElementById('cur-line');
+  if (!line) return;
+  ['chunk-mode','focus-mode','simple-mode'].forEach(c => line.classList.remove(c));
+  if (activeMode) line.classList.add(activeMode+'-mode');
+}
+
+// ══════════════════════════════════════════════
+//  TOOLTIP
+// ══════════════════════════════════════════════
+function showTipEl(e, el) {
+  if (el.classList.contains('lit')) return;
+  const t = el.getAttribute('data-tip');
+  if (!t) return;
+  const tip = document.getElementById('tooltip');
+  tip.textContent = t;
+  tip.style.left  = (e.clientX + 14) + 'px';
+  tip.style.top   = (e.clientY + 12) + 'px';
+  tip.classList.add('show');
+}
+function hideTip() { document.getElementById('tooltip').classList.remove('show'); }
+
+// ══════════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════════
+let toastTimer = null;
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+// ══ Init UI strings on load ══
+applyUIStrings('en');
+document.getElementById('p-counter').textContent = `Line — / ${TOTAL}`;
+// Set initial speed label
+updateSpeedLabel(2);
+</script>
+</body>
+</html>

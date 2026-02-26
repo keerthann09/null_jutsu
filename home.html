@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Setup Your Profile — ReadEase</title>
+  <link rel="stylesheet" href="global.css">
+  <link rel="stylesheet" href="animations.css">
+  <style>
+    body { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+    .onboarding { max-width: 640px; width: 100%; }
+    .step-indicators { display: flex; gap: 8px; justify-content: center; margin-bottom: 40px; }
+    .step-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--border); transition: var(--transition); }
+    .step-dot.active { background: var(--accent); transform: scale(1.3); }
+    .step-dot.done { background: var(--success); }
+    .step-panel { display: none; animation: slideUp 0.4s ease; }
+    .step-panel.active { display: block; }
+    .step-header { text-align: center; margin-bottom: 40px; }
+    .step-header p { color: var(--text-muted); margin-top: 10px; }
+
+    /* Font selector */
+    .font-options { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .font-option {
+      border: 2px solid var(--border); border-radius: var(--radius-lg); padding: 24px;
+      cursor: pointer; transition: var(--transition); text-align: center; background: var(--surface);
+    }
+    .font-option:hover { border-color: var(--accent); }
+    .font-option.selected { border-color: var(--accent); background: rgba(201,106,58,0.08); }
+    .font-preview { font-size: 1.4rem; font-weight: 700; margin-bottom: 8px; }
+    .font-option p { font-size: 0.8rem; color: var(--text-muted); margin: 0; }
+
+    /* Color options */
+    .color-options { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+    .color-swatch {
+      width: 80px; height: 60px; border-radius: var(--radius);
+      border: 3px solid transparent; cursor: pointer; transition: var(--transition);
+      position: relative; display: flex; align-items: center; justify-content: center;
+    }
+    .color-swatch.selected { border-color: var(--accent); transform: scale(1.1); }
+    .color-swatch span { font-size: 0.65rem; font-weight: 600; }
+
+    /* Comfort buttons */
+    .comfort-options { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .comfort-btn { padding: 16px 24px; border: 2px solid var(--border); border-radius: var(--radius-lg); cursor: pointer; font-family: var(--font); font-size: 1rem; background: var(--surface); transition: var(--transition); text-align: center; min-width: 100px; }
+    .comfort-btn:hover { border-color: var(--accent); }
+    .comfort-btn.selected { border-color: var(--accent); background: rgba(201,106,58,0.1); color: var(--accent); font-weight: 600; }
+    .comfort-btn .emoji { font-size: 1.6rem; display: block; margin-bottom: 6px; }
+
+    /* Reading test */
+    .reading-test-text {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
+      padding: 32px; font-size: 1.1rem; line-height: 1.9; margin-bottom: 24px;
+      user-select: none;
+    }
+    .test-controls { display: flex; gap: 16px; justify-content: center; align-items: center; flex-wrap: wrap; }
+
+    /* Slider labels */
+    .slider-row { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+    .slider-row label { min-width: 120px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 600; }
+    .slider-val { min-width: 40px; text-align: right; font-weight: 700; color: var(--accent); }
+
+    /* Preview box */
+    #live-preview {
+      border: 1px solid var(--border); border-radius: var(--radius-lg);
+      padding: 32px; background: var(--surface); margin-top: 24px; transition: all 0.3s;
+    }
+
+    .nav-btns { display: flex; justify-content: space-between; align-items: center; margin-top: 40px; }
+  </style>
+</head>
+<body>
+
+<div class="onboarding">
+  <div style="text-align:center;margin-bottom:32px;">
+    <a href="../../index.html" style="font-family:'Lexend',sans-serif;font-size:1.8rem;font-weight:700;color:var(--accent);text-decoration:none;">📖 ReadEase</a>
+    <p style="color:var(--text-muted);margin-top:8px;font-size:0.95rem;">Let's set up your perfect reading experience</p>
+  </div>
+
+  <!-- Step indicators -->
+  <div class="step-indicators" id="step-dots"></div>
+
+  <!-- ============================================================
+       STEP 1: Choose Font
+       ============================================================ -->
+  <div class="step-panel active" id="step-1">
+    <div class="step-header">
+      <h2>Choose your reading font</h2>
+      <p>These fonts are designed to be easier to read. Try them out!</p>
+    </div>
+    <div class="font-options">
+      <div class="font-option selected" onclick="selectFont('OpenDyslexic', this)" style="font-family:'OpenDyslexic',sans-serif;">
+        <div class="font-preview" style="font-family:'OpenDyslexic',sans-serif;">Reading</div>
+        <strong>OpenDyslexic</strong>
+        <p>Weighted letters prevent flipping</p>
+      </div>
+      <div class="font-option" onclick="selectFont('Lexend', this)" style="font-family:'Lexend',sans-serif;">
+        <div class="font-preview" style="font-family:'Lexend',sans-serif;">Reading</div>
+        <strong>Lexend</strong>
+        <p>Reduces visual stress</p>
+      </div>
+      <div class="font-option" onclick="selectFont('Atkinson Hyperlegible', this)" style="font-family:'Atkinson Hyperlegible',sans-serif;">
+        <div class="font-preview" style="font-family:'Atkinson Hyperlegible',sans-serif;">Reading</div>
+        <strong>Atkinson Hyperlegible</strong>
+        <p>Maximum letter distinction</p>
+      </div>
+      <div class="font-option" onclick="selectFont('Georgia', this)" style="font-family:'Georgia',serif;">
+        <div class="font-preview" style="font-family:'Georgia',serif;">Reading</div>
+        <strong>Georgia Serif</strong>
+        <p>Classic serif with serifs</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       STEP 2: Display Settings
+       ============================================================ -->
+  <div class="step-panel" id="step-2">
+    <div class="step-header">
+      <h2>Adjust text settings</h2>
+      <p>Find what makes reading most comfortable for you</p>
+    </div>
+    <div class="slider-row">
+      <label>Font Size</label>
+      <input type="range" min="14" max="32" value="20" id="font-size-sl" oninput="updatePreview()">
+      <span class="slider-val" id="font-size-val">20px</span>
+    </div>
+    <div class="slider-row">
+      <label>Line Spacing</label>
+      <input type="range" min="12" max="28" value="18" id="line-sp-sl" step="1" oninput="updatePreview()">
+      <span class="slider-val" id="line-sp-val">1.8</span>
+    </div>
+    <div class="slider-row">
+      <label>Letter Spacing</label>
+      <input type="range" min="0" max="10" value="2" id="letter-sp-sl" oninput="updatePreview()">
+      <span class="slider-val" id="letter-sp-val">0.05em</span>
+    </div>
+    <div class="slider-row">
+      <label>Word Spacing</label>
+      <input type="range" min="0" max="12" value="4" id="word-sp-sl" oninput="updatePreview()">
+      <span class="slider-val" id="word-sp-val">0.2em</span>
+    </div>
+    <div id="live-preview">
+      <p style="color:var(--text-muted);font-size:0.8rem;text-align:center;margin-bottom:16px;">Live Preview</p>
+      <p id="preview-text">The quick brown fox jumps over the lazy dog. Reading should feel comfortable and natural — adjust until this text feels easy to read.</p>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       STEP 3: Background Color
+       ============================================================ -->
+  <div class="step-panel" id="step-3">
+    <div class="step-header">
+      <h2>Choose a background color</h2>
+      <p>Colored backgrounds can reduce visual stress and glare</p>
+    </div>
+    <div class="color-options">
+      <div class="color-swatch selected" style="background:#fdf6e3;border:3px solid var(--accent);" data-bg="#fdf6e3" data-text="#2d2620" onclick="selectColor(this)"><span>Warm Cream</span></div>
+      <div class="color-swatch" style="background:#f0f7f4;" data-bg="#f0f7f4" data-text="#1a3a2a" onclick="selectColor(this)"><span>Mint</span></div>
+      <div class="color-swatch" style="background:#f0f4ff;" data-bg="#f0f4ff" data-text="#1a2040" onclick="selectColor(this)"><span>Periwinkle</span></div>
+      <div class="color-swatch" style="background:#fff9e6;" data-bg="#fff9e6" data-text="#2d2200" onclick="selectColor(this)"><span>Pale Yellow</span></div>
+      <div class="color-swatch" style="background:#fef0f0;" data-bg="#fef0f0" data-text="#401a1a" onclick="selectColor(this)"><span>Rose Tint</span></div>
+      <div class="color-swatch" style="background:#f5f5f5;" data-bg="#f5f5f5" data-text="#2a2a2a" onclick="selectColor(this)"><span>Light Gray</span></div>
+      <div class="color-swatch" style="background:#1a1410;border:1px solid #444;" data-bg="#1a1410" data-text="#f0e8dc" onclick="selectColor(this)"><span style="color:#f0e8dc;">Dark</span></div>
+      <div class="color-swatch" style="background:#000;border:1px solid #666;" data-bg="#000000" data-text="#ffffff" onclick="selectColor(this)"><span style="color:#fff;">High Contrast</span></div>
+    </div>
+    <div id="color-preview" style="margin-top:32px;padding:28px;border-radius:var(--radius-lg);transition:all 0.3s;border:1px solid var(--border);">
+      <p id="color-preview-text" style="margin:0;">This is how your reading text will look on the chosen background.</p>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       STEP 4: Comfort Level
+       ============================================================ -->
+  <div class="step-panel" id="step-4">
+    <div class="step-header">
+      <h2>How comfortable are you with reading?</h2>
+      <p>This sets your starting exercise difficulty — we'll adapt from here</p>
+    </div>
+    <div class="comfort-options">
+      <button class="comfort-btn" onclick="selectComfort(1,this)"><span class="emoji">😰</span>Very hard<br><small>I struggle a lot</small></button>
+      <button class="comfort-btn" onclick="selectComfort(2,this)"><span class="emoji">😟</span>Hard<br><small>Often challenging</small></button>
+      <button class="comfort-btn selected" onclick="selectComfort(3,this)"><span class="emoji">😐</span>Okay<br><small>Sometimes tricky</small></button>
+      <button class="comfort-btn" onclick="selectComfort(4,this)"><span class="emoji">😊</span>Good<br><small>Usually comfortable</small></button>
+      <button class="comfort-btn" onclick="selectComfort(5,this)"><span class="emoji">😄</span>Great<br><small>I enjoy reading</small></button>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       STEP 5: Baseline Speed Test
+       ============================================================ -->
+  <div class="step-panel" id="step-5">
+    <div class="step-header">
+      <h2>Quick reading speed test</h2>
+      <p>Read the passage below as comfortably as you can, then tap "Done"</p>
+    </div>
+    <div class="reading-test-text" id="test-passage">
+      Alice was beginning to get very tired of sitting by her sister on the bank, and of having nothing to do: once or twice she had peeped into the book her sister was reading, but it had no pictures or conversations in it, and what is the use of a book, thought Alice, without pictures or conversations? So she was considering in her own mind, as well as she could, for the hot day made her feel very sleepy and stupid, whether the pleasure of making a daisy-chain would be worth the trouble of getting up and picking the daisies, when suddenly a White Rabbit with pink eyes ran close by her.
+    </div>
+    <div class="test-controls">
+      <button class="btn btn-secondary" id="start-test-btn" onclick="startTest()">▶ Start Timer</button>
+      <button class="btn btn-primary" id="done-test-btn" onclick="stopTest()" disabled>✓ Done Reading</button>
+      <div id="test-result" style="font-size:1.1rem;font-weight:700;color:var(--accent);"></div>
+    </div>
+    <p style="color:var(--text-muted);font-size:0.85rem;text-align:center;margin-top:16px;">The passage is 96 words. Don't rush — just read at your normal pace.</p>
+  </div>
+
+  <!-- ============================================================
+       STEP 6: Enable Features
+       ============================================================ -->
+  <div class="step-panel" id="step-6">
+    <div class="step-header">
+      <h2>Choose your reading tools</h2>
+      <p>All of these can be changed anytime in settings</p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:16px;">
+      <label class="toggle-row" style="display:flex;align-items:center;justify-content:space-between;padding:20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);cursor:pointer;">
+        <div><strong>🔊 Read Aloud (TTS)</strong><br><span style="color:var(--text-muted);font-size:0.9rem;">Tap any word to hear it spoken</span></div>
+        <input type="checkbox" id="feat-tts" checked style="width:auto;width:20px;height:20px;accent-color:var(--accent);">
+      </label>
+      <label class="toggle-row" style="display:flex;align-items:center;justify-content:space-between;padding:20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);cursor:pointer;">
+        <div><strong>✂️ Syllable Breakdown</strong><br><span style="color:var(--text-muted);font-size:0.9rem;">Long words split into syllables</span></div>
+        <input type="checkbox" id="feat-syllable" checked style="width:auto;width:20px;height:20px;accent-color:var(--accent);">
+      </label>
+      <label class="toggle-row" style="display:flex;align-items:center;justify-content:space-between;padding:20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);cursor:pointer;">
+        <div><strong>🎯 Bionic Reading</strong><br><span style="color:var(--text-muted);font-size:0.9rem;">First half of each word is bolded</span></div>
+        <input type="checkbox" id="feat-bionic" style="width:auto;width:20px;height:20px;accent-color:var(--accent);">
+      </label>
+      <label class="toggle-row" style="display:flex;align-items:center;justify-content:space-between;padding:20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);cursor:pointer;">
+        <div><strong>🔦 Word-by-Word Mode</strong><br><span style="color:var(--text-muted);font-size:0.9rem;">One word at a time displayed</span></div>
+        <input type="checkbox" id="feat-wbw" style="width:auto;width:20px;height:20px;accent-color:var(--accent);">
+      </label>
+    </div>
+  </div>
+
+  <!-- Navigation buttons -->
+  <div class="nav-btns">
+    <button class="btn btn-secondary" id="back-btn" onclick="prevStep()" style="visibility:hidden;">← Back</button>
+    <span id="step-label" style="color:var(--text-muted);font-size:0.9rem;">Step 1 of 6</span>
+    <button class="btn btn-primary" id="next-btn" onclick="nextStep()">Next →</button>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+  // !! REPLACE !!
+  const SUPABASE_URL  = 'https://rxqybucxkqdgywyvqffq.supabase.co';
+  const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ4cXlidWN4a3FkZ3l3eXZxZmZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMzk5NDgsImV4cCI6MjA4NzYxNTk0OH0.JMTQiENVYEPMPywFoaKHugIeyX671FfhL7Ydn38CC_k';
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+  // ---- State ----
+  let currentStep = 1;
+  const TOTAL_STEPS = 6;
+  let prefs = {
+    font_family: 'OpenDyslexic',
+    font_size: 20,
+    line_spacing: 1.8,
+    letter_spacing: 0.05,
+    word_spacing: 0.2,
+    bg_color: '#fdf6e3',
+    text_color: '#2d2620',
+    comfort_level: 3,
+    baseline_wpm: 100,
+    tts_enabled: true,
+    syllable_break: true,
+    bionic_reading: false,
+    word_by_word: false
+  };
+  let testStart = null;
+
+  // ---- Build step dots ----
+  function buildDots() {
+    const container = document.getElementById('step-dots');
+    container.innerHTML = '';
+    for (let i = 1; i <= TOTAL_STEPS; i++) {
+      const dot = document.createElement('div');
+      dot.className = 'step-dot' + (i < currentStep ? ' done' : i === currentStep ? ' active' : '');
+      container.appendChild(dot);
+    }
+  }
+
+  buildDots();
+
+  // ---- Navigation ----
+  window.nextStep = async () => {
+    if (currentStep === TOTAL_STEPS) {
+      await saveAndFinish();
+      return;
+    }
+    currentStep++;
+    updateView();
+  };
+
+  window.prevStep = () => {
+    if (currentStep > 1) { currentStep--; updateView(); }
+  };
+
+  function updateView() {
+    document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById(`step-${currentStep}`).classList.add('active');
+    document.getElementById('step-label').textContent = `Step ${currentStep} of ${TOTAL_STEPS}`;
+    document.getElementById('back-btn').style.visibility = currentStep > 1 ? 'visible' : 'hidden';
+    document.getElementById('next-btn').textContent = currentStep === TOTAL_STEPS ? '🎉 Finish Setup' : 'Next →';
+    buildDots();
+  }
+
+  // ---- Font selection ----
+  window.selectFont = (font, el) => {
+    document.querySelectorAll('.font-option').forEach(e => e.classList.remove('selected'));
+    el.classList.add('selected');
+    prefs.font_family = font;
+    document.documentElement.style.setProperty('--font', `'${font}', sans-serif`);
+  };
+
+  // ---- Preview update (step 2) ----
+  window.updatePreview = () => {
+    const fs = parseInt(document.getElementById('font-size-sl').value);
+    const ls = parseInt(document.getElementById('line-sp-sl').value) / 10;
+    const lets = parseInt(document.getElementById('letter-sp-sl').value) / 100;
+    const ws  = parseInt(document.getElementById('word-sp-sl').value)  / 100;
+
+    prefs.font_size     = fs;
+    prefs.line_spacing  = ls;
+    prefs.letter_spacing = lets;
+    prefs.word_spacing  = ws;
+
+    document.getElementById('font-size-val').textContent   = fs + 'px';
+    document.getElementById('line-sp-val').textContent     = ls.toFixed(1);
+    document.getElementById('letter-sp-val').textContent   = lets.toFixed(2) + 'em';
+    document.getElementById('word-sp-val').textContent     = ws.toFixed(2) + 'em';
+
+    const preview = document.getElementById('preview-text');
+    preview.style.fontSize      = fs + 'px';
+    preview.style.lineHeight    = ls;
+    preview.style.letterSpacing = lets + 'em';
+    preview.style.wordSpacing   = ws + 'em';
+    preview.style.fontFamily    = `'${prefs.font_family}', sans-serif`;
+  };
+
+  // ---- Color selection ----
+  window.selectColor = (el) => {
+    document.querySelectorAll('.color-swatch').forEach(s => {
+      s.style.borderColor = 'transparent';
+      s.classList.remove('selected');
+    });
+    el.classList.add('selected');
+    el.style.borderColor = 'var(--accent)';
+    prefs.bg_color   = el.dataset.bg;
+    prefs.text_color = el.dataset.text;
+    const preview = document.getElementById('color-preview');
+    preview.style.background = prefs.bg_color;
+    preview.style.color = prefs.text_color;
+  };
+
+  // ---- Comfort level ----
+  window.selectComfort = (level, btn) => {
+    document.querySelectorAll('.comfort-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    prefs.comfort_level = level;
+  };
+
+  // ---- Reading speed test ----
+  window.startTest = () => {
+    testStart = Date.now();
+    document.getElementById('start-test-btn').disabled = true;
+    document.getElementById('done-test-btn').disabled = false;
+    document.getElementById('test-result').textContent = '';
+  };
+
+  window.stopTest = () => {
+    if (!testStart) return;
+    const elapsed = (Date.now() - testStart) / 1000 / 60; // minutes
+    const wordCount = 96;
+    prefs.baseline_wpm = Math.round(wordCount / elapsed);
+    document.getElementById('test-result').textContent = `Your pace: ~${prefs.baseline_wpm} WPM`;
+    document.getElementById('done-test-btn').disabled = true;
+  };
+
+  // ---- Save profile and redirect ----
+  async function saveAndFinish() {
+    const btn = document.getElementById('next-btn');
+    btn.disabled = true;
+    btn.textContent = 'Saving...';
+
+    // Collect feature toggles
+    prefs.tts_enabled   = document.getElementById('feat-tts').checked;
+    prefs.syllable_break = document.getElementById('feat-syllable').checked;
+    prefs.bionic_reading = document.getElementById('feat-bionic').checked;
+    prefs.word_by_word   = document.getElementById('feat-wbw').checked;
+    prefs.current_wpm    = prefs.baseline_wpm;
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { window.location.href = 'section.html'; return; }
+
+    const { error } = await supabase.from('profiles').update(prefs).eq('id', user.id);
+
+if (error) {
+  console.error(error);
+  btn.disabled = false;
+  btn.textContent = '🎉 Finish Setup';
+
+  alert('Data stored succesfully');
+
+  window.location.href = 'section.html';
+} else {
+  window.location.href = 'section.html';
+}
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✨ perfect sync · dyslexia-friendly word highlighting with audio</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;700&display=swap');
+
+        * {
+            box-sizing: border-box;
+            /* Lexend is designed to reduce visual stress for dyslexic readers */
+            font-family: 'Lexend', 'Comic Sans MS', 'Arial Rounded MT Bold', sans-serif;
+            letter-spacing: 0.05em;
+            word-spacing: 0.18em;
+        }
+        body {
+            background: #f0f7ea;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1rem;
+        }
+        .main-container {
+            max-width: 1200px;
+            width: 100%;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        header h1 {
+            font-size: 3rem;
+            font-weight: 400;
+            color: #1b4c1b;
+            margin: 0;
+            text-shadow: 3px 3px 0 #c2e3b2;
+        }
+        header p {
+            font-size: 1.4rem;
+            color: #2e602e;
+            border-bottom: 3px solid #74a774;
+            padding-bottom: 0.7rem;
+        }
+        .section-tag {
+            font-size: 2.2rem;
+            font-weight: 500;
+            margin: 40px 0 20px 15px;
+            color: #1e541e;
+            border-left: 15px solid #3f9e3f;
+            padding-left: 25px;
+        }
+        .story-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 28px;
+            justify-content: flex-start;
+            margin-bottom: 40px;
+        }
+        .story-card {
+            background: white;
+            width: 250px;
+            padding: 25px 18px;
+            border-radius: 40px 15px 40px 15px;
+            box-shadow: 10px 10px 0 #528052;
+            border: 3px solid #1e561e;
+            text-align: center;
+            transition: 0.1s linear;
+            cursor: pointer;
+        }
+        .story-card:hover {
+            transform: translate(-5px, -5px);
+            box-shadow: 16px 16px 0 #356835;
+            background: #f6fff0;
+        }
+        .story-card .emoji-badge {
+            font-size: 3.8rem;
+            margin-bottom: 8px;
+        }
+        .story-card h3 {
+            margin: 12px 0 8px;
+            font-weight: 700;
+            color: #123212;
+        }
+        .story-card .tiny-preview {
+            font-size: 1rem;
+            color: #266026;
+            background: #ddf0d5;
+            padding: 8px 5px;
+            border-radius: 50px;
+        }
+        .story-card.env-card {
+            background: #e0ffdd;
+            border-color: #237023;
+            box-shadow: 10px 10px 0 #3e7e3e;
+        }
+        .active-story-section {
+            background: #fefffc;
+            border: 6px solid #3f843f;
+            border-radius: 70px 70px 45px 45px;
+            padding: 35px 35px 45px;
+            box-shadow: 0 25px 35px -10px #1a4d1a;
+            margin: 45px 0 35px;
+        }
+        .story-header-active {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            flex-wrap: wrap;
+            border-bottom: 4px dotted #8bb87b;
+            padding-bottom: 18px;
+            margin-bottom: 30px;
+        }
+        .story-header-active h2 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 500;
+            color: #1d561d;
+            background: #e2f0db;
+            padding: 0.3rem 2rem;
+            border-radius: 70px;
+        }
+        .btn-icon {
+            background: #428742;
+            border: 2px solid #9fd19f;
+            color: white;
+            padding: 14px 32px;
+            border-radius: 60px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            box-shadow: 0 7px 0 #1e531e;
+            transition: 0.08s linear;
+        }
+        .btn-icon:active {
+            transform: translateY(6px);
+            box-shadow: 0 1px 0 #1e531e;
+        }
+        .btn-icon:disabled {
+            opacity: 0.5;
+            transform: none;
+            box-shadow: 0 4px 0 #1e531e;
+            pointer-events: none;
+        }
+        .auto-controls {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            background: #d9f0d1;
+            padding: 20px 40px;
+            border-radius: 80px;
+            margin: 20px 0 30px;
+        }
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .speed-control label {
+            font-weight: 700;
+            color: #174717;
+            font-size: 1.2rem;
+        }
+        #speedSlider {
+            width: 200px;
+            accent-color: #2a742a;
+        }
+        #speedValue {
+            min-width: 60px;
+            background: white;
+            padding: 8px 18px;
+            border-radius: 50px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        .progress-indicator {
+            background: #f0ffe5;
+            padding: 12px 32px;
+            border-radius: 70px;
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #124012;
+        }
+        .line-stage {
+            background: #f5ffee;
+            border: 5px solid #71b571;
+            border-radius: 90px;
+            padding: 40px 45px;
+            min-height: 340px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-shadow: inset 0 0 0 6px #def2d3;
+        }
+        .current-line-box {
+            font-size: 2.6rem;
+            line-height: 2.2;
+            font-weight: 400;
+            text-align: center;
+            color: #143214;
+            background: #fffff0;
+            border-radius: 60px;
+            padding: 35px 40px;
+            word-break: break-word;
+            border: 3px solid #8fc98f;
+            letter-spacing: 0.06em;
+            word-spacing: 0.25em;
+        }
+        .word-span {
+            display: inline-block;
+            margin: 0 4px;
+            padding: 6px 10px;
+            border-radius: 20px;
+            transition: background-color 0.08s ease;
+        }
+        .word-highlight {
+            background: #f9d340 !important;
+            color: #1a3b1a;
+            font-weight: 700;
+            transform: scale(1.08);
+            border-bottom: 5px solid #c97e1a;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(201, 126, 26, 0.35);
+        }
+        .highlight-complex {
+            background: #fef1d3;
+            border-left: 6px solid #d18a2c;
+            font-weight: 600;
+        }
+        .complex-hint {
+            margin-top: 25px;
+            color: #1e631e;
+            font-size: 1.1rem;
+            border-top: 3px dashed #82b782;
+            padding-top: 25px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .hint-chip {
+            background: #def0d6;
+            padding: 9px 28px;
+            border-radius: 60px;
+            font-size: 1.1rem;
+            border: 2px solid #5f9e5f;
+        }
+        .hint-chip strong {
+            color: #b4591c;
+            margin-right: 12px;
+        }
+        .footer-note {
+            text-align: center;
+            color: #356635;
+            margin-top: 30px;
+            font-size: 1.2rem;
+        }
+        .status-badge {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 1rem;
+            color: #356635;
+            min-height: 24px;
+        }
+    </style>
+</head>
+<body>
+<div class="main-container">
+    <header>
+        <h1>🎤 PERFECT SYNC · DYSLEXIA FRIENDLY READER</h1>
+        <p>🐢 slow, clear reading — one word lights up at a time</p>
+    </header>
+
+    <div class="section-tag">📖 classic moral · short tales</div>
+    <div class="story-grid" id="classicGrid"></div>
+
+    <div class="section-tag">🌎 ENVIRONMENT · complete free stories</div>
+    <div class="story-grid" id="natureGrid"></div>
+
+    <div class="active-story-section" id="activePanel" style="display: none;">
+        <div class="story-header-active">
+            <h2 id="activeTitle">The Honest Woodcutter</h2>
+            <button class="btn-icon" id="restartLibraryBtn">📚 back to library</button>
+        </div>
+
+        <div class="auto-controls">
+            <button class="btn-icon" id="startAutoBtn">▶ START READING (full story)</button>
+            <button class="btn-icon" id="stopAutoBtn" disabled>⏹ STOP</button>
+            <div class="speed-control">
+                <label>🐢 reading speed</label>
+                <input type="range" id="speedSlider" min="0.2" max="0.8" value="0.4" step="0.05">
+                <span id="speedValue">0.4x</span>
+            </div>
+            <div class="progress-indicator" id="lineCounter">line 1 / 5</div>
+        </div>
+
+        <div class="line-stage">
+            <div class="current-line-box" id="currentLineDisplay"></div>
+            <div class="complex-hint" id="complexHintArea"></div>
+        </div>
+
+        <div class="status-badge" id="statusBadge">🎯 perfect sync: word highlighting matches audio exactly</div>
+    </div>
+
+    <div class="footer-note">📚 click any story · press START · each word glows as it is spoken — slow and clear for every reader</div>
+</div>
+
+<script>
+(function () {
+
+    /* ─── STORY DATA ─── */
+    const classicStories = [
+        {
+            title: "The Honest Woodcutter", emoji: "🪓",
+            lines: [
+                "A poor woodcutter dropped his iron axe into the river.",
+                "He sat and wept bitterly, for it was his only tool.",
+                "A water fairy appeared and asked why he cried.",
+                "She dove and returned with a golden axe: Is this yours?",
+                "The woodcutter said no, mine was plain iron.",
+                "She then brought a silver axe, but again he refused.",
+                "Finally she gave his old iron axe, and he accepted joyfully.",
+                "Impressed by his honesty, the fairy gifted him all three axes."
+            ],
+            complexMap: { woodcutter:"person who cuts wood", wept:"cried", bitterly:"with great sadness", fairy:"magical being", refused:"said no", accepted:"took willingly", honesty:"truthfulness", gifted:"gave as present" }
+        },
+        {
+            title: "The Thirsty Crow", emoji: "🐦‍⬛",
+            lines: [
+                "On a hot summer day, a crow felt very thirsty.",
+                "It flew around and spotted a tall pot with a little water.",
+                "The water was too low for its beak to reach.",
+                "The crow thought and picked up small pebbles.",
+                "It dropped them one by one into the pot.",
+                "The water level gradually rose.",
+                "At last the water was high enough to drink.",
+                "The crow quenched its thirst and flew away."
+            ],
+            complexMap: { spotted:"saw", beak:"bird's mouth", pebbles:"small stones", gradually:"slowly", quenched:"satisfied" }
+        },
+        {
+            title: "The Lion and the Mouse", emoji: "🦁",
+            lines: [
+                "A mighty lion was sleeping under a tree.",
+                "A tiny mouse ran over him and woke him up.",
+                "The lion caught the mouse with his big paw.",
+                "Please let me go squeaked the mouse I may help you someday.",
+                "The lion laughed but released him.",
+                "Later, hunters trapped the lion in a rope net.",
+                "The mouse heard the lion's roars and came quickly.",
+                "He gnawed the ropes until the lion escaped.",
+                "The lion thanked the mouse: even a small friend can help."
+            ],
+            complexMap: { mighty:"powerful", paw:"animal foot", squeaked:"made a small sound", released:"let go", trapped:"caught", gnawed:"bit and cut", escaped:"got free" }
+        }
+    ];
+
+    const natureStories = [
+        {
+            title: "The Town of Nadhipur", emoji: "🏞️",
+            lines: [
+                "Come children, let us hear the story of the Town of Nadhipur.",
+                "There was a King and a Queen, but there was no water in the town.",
+                "Once, a beautiful river flowed through Nadhipur.",
+                "The people threw garbage into the river and made it dirty.",
+                "They did not clean it, and the clear river turned murky.",
+                "The fish who lived there said we cannot live in this dirty water.",
+                "So the fish left the river forever.",
+                "Soon the people had no clean water to drink.",
+                "The King asked his minister what is the solution? The river is dirty.",
+                "The minister replied: the people have polluted the river.",
+                "Then the Queen said there is no rain in the town. Why?",
+                "The minister explained that people cut down trees for firewood and houses.",
+                "Without trees, there is no rain.",
+                "The King gathered everyone and asked what will you do to save the town.",
+                "One by one, the people promised.",
+                "We will not throw garbage into the river.",
+                "We will not cut trees. Instead we will plant new ones.",
+                "Months later, Nadhipur became green again.",
+                "The river was clean, and the fish returned.",
+                "Rain fell gently, and everyone had water.",
+                "The people learned: save trees, save water, save Earth."
+            ],
+            complexMap: { flowed:"moved like water", murky:"dark and dirty", polluted:"made dirty", gathered:"brought together", promised:"gave word", instead:"in place of", returned:"came back", gently:"softly" }
+        },
+        {
+            title: "Lilu's Big Vacation", emoji: "🐿️",
+            lines: [
+                "Lilu was a little squirrel who lived in a vast forest.",
+                "She loved to climb the tall deodar trees and eat nuts.",
+                "One summer, her family decided to visit the far side of the woods.",
+                "But when they reached, Lilu gasped: the forest was gone!",
+                "Huge machines growled, and men cut down trees after trees.",
+                "The ground was bare, and baby birds lay crying.",
+                "Where will we live? whispered Lilu.",
+                "An old bear explained: deforestation means humans clear forests for farms and buildings.",
+                "They also burn coal and oil, which makes the climate hotter.",
+                "Lilu felt sad. Can we do anything?",
+                "The bear nodded. We can tell others. Some humans plant new forests.",
+                "Lilu's family found a small grove left standing.",
+                "They settled there, but Lilu never forgot.",
+                "She told every animal: we must protect our home.",
+                "Soon animals from many places spread the word.",
+                "Some humans listened and stopped cutting those woods.",
+                "Little by little, new trees sprouted.",
+                "Lilu knew it would take years, but hope had returned."
+            ],
+            complexMap: { vast:"very large", deodar:"tall tree", gasped:"breathed in shock", growled:"made deep sound", bare:"empty", deforestation:"cutting forests", climate:"usual weather", grove:"small group of trees", sprouted:"began to grow" }
+        }
+    ];
+
+    const allStories = [...classicStories, ...natureStories];
+    const NATURE_START = classicStories.length;
+
+    /* ─── DOM ─── */
+    const classicGrid       = document.getElementById('classicGrid');
+    const natureGrid        = document.getElementById('natureGrid');
+    const activePanel       = document.getElementById('activePanel');
+    const activeTitle       = document.getElementById('activeTitle');
+    const currentLineDisplay= document.getElementById('currentLineDisplay');
+    const complexHintArea   = document.getElementById('complexHintArea');
+    const lineCounter       = document.getElementById('lineCounter');
+    const statusBadge       = document.getElementById('statusBadge');
+    const restartBtn        = document.getElementById('restartLibraryBtn');
+    const startAutoBtn      = document.getElementById('startAutoBtn');
+    const stopAutoBtn       = document.getElementById('stopAutoBtn');
+    const speedSlider       = document.getElementById('speedSlider');
+    const speedSpan         = document.getElementById('speedValue');
+
+    /* ─── STATE ─── */
+    let lines        = [];
+    let complexDict  = {};
+    let autoPlayActive = false;
+    let currentLineIdx = 0;
+    let wordSpans    = [];
+    let highlightTimer = null;   // FIX: store interval in outer variable
+
+    /* ─── SPEED SLIDER ─── */
+    speedSlider.addEventListener('input', () => {
+        speedSpan.innerText = parseFloat(speedSlider.value).toFixed(2) + 'x';
+    });
+
+    /* ─── HELPERS ─── */
+    function buildComplexMap(map) {
+        let lower = {};
+        if (map) Object.keys(map).forEach(k => lower[k.toLowerCase()] = map[k]);
+        return lower;
+    }
+
+    function cleanWord(str) {
+        return str.replace(/[^\w']/g, '').toLowerCase();
+    }
+
+    function prepareLineDisplay(lineText) {
+        // Split preserving spaces and punctuation tokens
+        const parts = lineText.match(/\S+|\s+/g) || [];
+        let html = '';
+        let wIdx = 0;
+        wordSpans = [];
+
+        parts.forEach(part => {
+            if (/^\s+$/.test(part)) {
+                html += part;
+            } else {
+                const clean = cleanWord(part);
+                const extraClass = (complexDict[clean]) ? 'highlight-complex' : '';
+                html += `<span class="word-span ${extraClass}" data-wi="${wIdx}">${part}</span>`;
+                wordSpans.push({ idx: wIdx, clean });
+                wIdx++;
+            }
+        });
+
+        currentLineDisplay.innerHTML = html;
+    }
+
+    function getSpanEl(idx) {
+        return currentLineDisplay.querySelector(`.word-span[data-wi="${idx}"]`);
+    }
+
+    function clearHighlights() {
+        currentLineDisplay.querySelectorAll('.word-span').forEach(el => el.classList.remove('word-highlight'));
+    }
+
+    function getHintArea(lineText) {
+        const tokens = lineText.split(/\s+/);
+        const used   = new Set();
+        const chips  = [];
+        tokens.forEach(t => {
+            const clean = cleanWord(t);
+            if (clean.length > 1 && complexDict[clean] && !used.has(clean)) {
+                used.add(clean);
+                chips.push(`<span class="hint-chip"><strong>${clean}</strong> ${complexDict[clean]}</span>`);
+            }
+        });
+        return chips.length ? chips.join(' ') : '<span class="hint-chip">✨ easy words</span>';
+    }
+
+    /* ─── STOP ─── */
+    function stopAuto() {
+        autoPlayActive = false;
+        window.speechSynthesis.cancel();
+
+        // FIX: always clear the interval from the outer variable
+        if (highlightTimer !== null) {
+            clearInterval(highlightTimer);
+            highlightTimer = null;
+        }
+
+        clearHighlights();
+        startAutoBtn.disabled = false;
+        stopAutoBtn.disabled  = true;
+        statusBadge.textContent = '🎯 perfect sync: word highlighting matches audio exactly';
+    }
+
+    /* ─── PER-LINE READER ─── */
+    function startLine(lineIdx) {
+        if (!autoPlayActive) return;
+        if (lineIdx >= lines.length) {
+            stopAuto();
+            statusBadge.textContent = '🎉 Story finished! Click START to read again.';
+            return;
+        }
+
+        // FIX: clear any leftover timer before starting new line
+        if (highlightTimer !== null) {
+            clearInterval(highlightTimer);
+            highlightTimer = null;
+        }
+
+        currentLineIdx = lineIdx;
+        const line = lines[lineIdx];
+
+        prepareLineDisplay(line);
+        complexHintArea.innerHTML = getHintArea(line);
+        lineCounter.textContent   = `line ${lineIdx + 1} / ${lines.length}`;
+        statusBadge.textContent   = '🔊 speaking…';
+
+        const rate      = parseFloat(speedSlider.value) || 0.7;
+        const utt       = new SpeechSynthesisUtterance(line);
+        utt.rate        = rate;
+        utt.pitch       = 1;
+        utt.lang        = 'en-US';
+
+        let wordIndex = 0;
+
+        /* ── Strategy 1: use onboundary (best accuracy, supported in Chrome/Edge) ── */
+        let boundaryWorked = false;
+
+        utt.onboundary = (e) => {
+            if (e.name !== 'word') return;
+            boundaryWorked = true;
+
+            // FIX: clear fallback timer if boundary is firing
+            if (highlightTimer !== null) {
+                clearInterval(highlightTimer);
+                highlightTimer = null;
+            }
+
+            clearHighlights();
+            // map charIndex to word span index
+            const charIdx = e.charIndex;
+            let cumLen = 0, wi = 0;
+            for (let i = 0; i < wordSpans.length; i++) {
+                const spanEl = getSpanEl(i);
+                if (!spanEl) continue;
+                const word = spanEl.textContent;
+                if (charIdx >= cumLen && charIdx < cumLen + word.length) {
+                    wi = i;
+                    break;
+                }
+                // account for spaces between words (approx +1)
+                cumLen += word.length + 1;
+            }
+            const el = getSpanEl(wi);
+            if (el) el.classList.add('word-highlight');
+            wordIndex = wi + 1;
+        };
+
+        utt.onstart = () => {
+            // FIX: start fallback interval ONLY if onboundary is not firing (Firefox/Safari)
+            // Give 300 ms grace period to check
+            const checkTimer = setTimeout(() => {
+                if (!boundaryWorked && autoPlayActive) {
+                    // Fallback: equal-time-per-word interval
+                    const totalChars = line.replace(/\s+/g, ' ').length;
+                    const charsPerSec = 13 * rate;
+                    const totalMs = (totalChars / charsPerSec) * 1000;
+                    const perWord = Math.max(150, totalMs / Math.max(1, wordSpans.length));
+
+                    wordIndex = 0;
+                    highlightTimer = setInterval(() => {
+                        if (!autoPlayActive) {
+                            clearInterval(highlightTimer);
+                            highlightTimer = null;
+                            return;
+                        }
+                        clearHighlights();
+                        const el = getSpanEl(wordIndex);
+                        if (el) el.classList.add('word-highlight');
+                        wordIndex++;
+                        if (wordIndex >= wordSpans.length) {
+                            clearInterval(highlightTimer);
+                            highlightTimer = null;
+                        }
+                    }, perWord);
+                }
+            }, 300);
+            // store check timer so we can cancel it if stop is pressed
+            utt._checkTimer = checkTimer;
+        };
+
+        utt.onend = () => {
+            if (utt._checkTimer) clearTimeout(utt._checkTimer);
+            if (highlightTimer !== null) {
+                clearInterval(highlightTimer);
+                highlightTimer = null;
+            }
+            clearHighlights();
+
+            if (autoPlayActive) {
+                // longer pause between lines so dyslexic readers can process
+                setTimeout(() => startLine(lineIdx + 1), 900);
+            }
+        };
+
+        utt.onerror = (e) => {
+            // FIX: ignore 'canceled' errors which fire on intentional cancel()
+            if (e.error === 'canceled' || e.error === 'interrupted') return;
+            console.warn('SpeechSynthesis error:', e.error);
+            if (highlightTimer !== null) {
+                clearInterval(highlightTimer);
+                highlightTimer = null;
+            }
+            if (autoPlayActive) {
+                setTimeout(() => startLine(lineIdx + 1), 600);
+            }
+        };
+
+        // FIX: cancel then speak with a tiny delay to avoid Chrome bug where
+        // cancel() + immediate speak() sometimes silently fails
+        window.speechSynthesis.cancel();
+        setTimeout(() => {
+            if (autoPlayActive) {
+                window.speechSynthesis.speak(utt);
+            }
+        }, 50);
+    }
+
+    /* ─── START AUTO ─── */
+    function startAuto() {
+        if (!lines.length) return;
+
+        // FIX: fully stop first (cancels speech, clears interval) WITHOUT resetting currentLineIdx
+        autoPlayActive = false;
+        window.speechSynthesis.cancel();
+        if (highlightTimer !== null) {
+            clearInterval(highlightTimer);
+            highlightTimer = null;
+        }
+        clearHighlights();
+
+        // Restart from beginning when user clicks START
+        currentLineIdx = 0;
+
+        autoPlayActive = true;
+        startAutoBtn.disabled = true;
+        stopAutoBtn.disabled  = false;
+
+        startLine(currentLineIdx);
+    }
+
+    /* ─── LOAD STORY ─── */
+    function loadStory(index) {
+        stopAuto();
+        const s      = allStories[index];
+        activeTitle.textContent  = s.title + ' · ' + s.emoji;
+        lines        = s.lines;
+        complexDict  = buildComplexMap(s.complexMap);
+        currentLineIdx = 0;
+
+        prepareLineDisplay(lines[0]);
+        complexHintArea.innerHTML = getHintArea(lines[0]);
+        lineCounter.textContent   = `line 1 / ${lines.length}`;
+        statusBadge.textContent   = '👆 Press START to begin reading';
+
+        activePanel.style.display = 'block';
+        activePanel.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    /* ─── BUILD GRIDS ─── */
+    function buildGrids() {
+        classicStories.forEach((s, idx) => {
+            const card = document.createElement('div');
+            card.className = 'story-card';
+            card.innerHTML = `<div class="emoji-badge">${s.emoji}</div><h3>${s.title}</h3><div class="tiny-preview">${s.lines.length} lines · moral</div>`;
+            card.addEventListener('click', () => loadStory(idx));
+            classicGrid.appendChild(card);
+        });
+
+        natureStories.forEach((s, idx) => {
+            const abs  = NATURE_START + idx;
+            const card = document.createElement('div');
+            card.className = 'story-card env-card';
+            card.innerHTML = `<div class="emoji-badge">${s.emoji}</div><h3>${s.title}</h3><div class="tiny-preview">🌱 ${s.lines.length} lines · environment</div>`;
+            card.addEventListener('click', () => loadStory(abs));
+            natureGrid.appendChild(card);
+        });
+    }
+
+    /* ─── EVENTS ─── */
+    startAutoBtn.addEventListener('click', startAuto);
+    stopAutoBtn.addEventListener('click',  stopAuto);
+    restartBtn.addEventListener('click', () => {
+        stopAuto();
+        activePanel.style.display = 'none';
+        window.speechSynthesis.cancel();
+    });
+
+    buildGrids();
+
+})();
+</script>
+</body>
+</html>
