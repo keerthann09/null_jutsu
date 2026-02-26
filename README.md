@@ -15,7 +15,7 @@ College Name: Shri Dharmansthala Manjunatheshwara College Of Business Management
 
 ---
 
-## 🚀 The Problem
+## The Problem
 
 Dyslexia affects approximately **20% of the global population**, yet most digital educational content remains static and visually overwhelming. This leads to:
 
@@ -23,7 +23,7 @@ Dyslexia affects approximately **20% of the global population**, yet most digita
 * **Low Confidence:** Static difficulty levels discourage struggling readers.
 * **Access Barriers:** Tools are often expensive or lack offline capabilities.
 
-## ✨ Key Features
+##  Key Features
 
 * **Personalized Reading Profile:** A "First-Run" evaluation that sets baseline reading speed and preferred visual styles (font, spacing, overlays).
 * **Dynamic UI Customization:** * **Fonts:** Support for OpenDyslexic and Atkinson Hyperlegible.
@@ -35,7 +35,7 @@ Dyslexia affects approximately **20% of the global population**, yet most digita
 * **Adaptive Skill Lab:** Exercises that adjust in real-time based on user performance to improve fluency and phonological awareness.
 * **Progress Dashboard:** Visualizes improvements in reading speed (WPM), comprehension scores, and total learning time.
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 * **Frontend:** HTML5, CSS3, Vanilla JavaScript (ES6+)
 * **Application Type:** Progressive Web App (PWA) — for offline access and mobile-first experience.
@@ -52,7 +52,7 @@ LexiLift uses a dual-backend approach to maximize hackathon efficiency:
 
 ---
 
-## 📦 Installation & Setup
+## Installation & Setup
 
 1. **Clone the repository:**
 ```bash
@@ -80,7 +80,7 @@ python -m http.server 8000
 
 ```
 
-## 📈 The Adaptive Logic
+## The Adaptive Logic
 
 The platform uses a performance-based algorithm to scale difficulty.
 
@@ -89,12 +89,12 @@ The platform uses a performance-based algorithm to scale difficulty.
 
 ---
 
-## 🚧 Challenges We Overcame
+## Challenges We Overcame
 
 * **State Syncing:** Managing UI preferences across different sessions using Supabase real-time updates.
 * **Accessibility Design:** Balancing a modern aesthetic with strict WCAG accessibility guidelines for dyslexic users.
 
-## 🗺️ Roadmap /Future Updates
+## Roadmap /Future Updates
 
 * **AI Simplification:** Integration of LLMs to summarize complex academic text into "Easy-to-Read" versions.
 * **Gamification:** Badges and streaks to encourage daily reading habits.
